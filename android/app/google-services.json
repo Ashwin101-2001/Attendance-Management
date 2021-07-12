@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "747071381115",
+    "project_id": "attendance-register-b750a",
+    "storage_bucket": "attendance-register-b750a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:747071381115:android:ed74befc0f3f67bdae4cde",
+        "android_client_info": {
+          "package_name": "ak.attendanceRegister"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "747071381115-s36ut68kb73fn760ck1m5jnu5q6rvubq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCwjcx3jwj7Omy8zs_b2w2TCaDlLUS7EOQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "747071381115-s36ut68kb73fn760ck1m5jnu5q6rvubq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:747071381115:android:1169ac6b220e470fae4cde",
+        "android_client_info": {
+          "package_name": "ak.varnam_attendance"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "747071381115-s36ut68kb73fn760ck1m5jnu5q6rvubq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCwjcx3jwj7Omy8zs_b2w2TCaDlLUS7EOQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "747071381115-s36ut68kb73fn760ck1m5jnu5q6rvubq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
