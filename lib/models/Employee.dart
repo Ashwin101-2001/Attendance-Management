@@ -9,10 +9,12 @@ class Employee {
   int _overTimeHours;
   int _overTime;
   int _advance;
+  bool _checked;
 
 
   Employee(this._name, this._aadhar, this._DOJ, this._phone, this._allowance,
    this._wage,this._overTime,this._advance);
+
 
 
 
@@ -31,6 +33,9 @@ class Employee {
   int get overTimeHours => _overTimeHours;
   int get overTime => _overTime;
   int get advance => _advance;
+
+
+  bool get checked => _checked;
 
   int get wage => _wage;
 
@@ -68,6 +73,10 @@ class Employee {
     this._advance = x;
   }
 
+  set checked(bool x) {
+    this._checked = x;
+  }
+
 
   Map<String, dynamic> get map {
     var map = Map<String, dynamic>();
@@ -97,6 +106,9 @@ class Employee {
     this._allowance = map['allowance'];
     this._overTime = map['overTime'];
     this._advance = map['advance'];
+    this._attendance=2;
+    this._overTimeHours=3;
+    this._checked=false;
 
   }
 }

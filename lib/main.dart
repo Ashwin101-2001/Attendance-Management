@@ -17,8 +17,8 @@ class MyApp extends StatelessWidget {
 
         primarySwatch: Colors.blue,
       ),
-      home: addEmployee(),
-       //home:markAttendance(),
+      //home: addEmployee(),
+       home:markAttendance(),
     );
   }
 }

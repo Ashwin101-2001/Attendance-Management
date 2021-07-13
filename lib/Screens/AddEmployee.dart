@@ -83,74 +83,77 @@ class _addEmployeeState extends State<addEmployee> {
   Widget build(BuildContext context) {
     if (!loading)
       return Scaffold(
-        appBar: AppBar(
-          title: Center(child: Text('Add an Employee')),
-        ),
-        backgroundColor: Colors.red,
-        body: SingleChildScrollView(
-          child: Center(
-            child: LayoutBuilder(
-              builder: (context,contraint)
-              { return Container(
-                  width:contraint.maxWidth>=480?contraint.maxWidth/3:contraint.maxWidth,
-                  color: BGColor,
-                  padding: EdgeInsets.only(right: 20.0, left: 20.0, top: 40.0),
-                  child:Form(
-                    key: _formKey,
-                    child: Column(
-                      children: [
-                        getName(1, nameController),
-                        SizedBox(height: 10.0,),
-                        getName(2, phoneController),
-                        SizedBox(height: 10.0,),
-                        getName(3, aadharController),
-                        SizedBox(height: 10.0,),
-                        getOTandWage(4, wageController),
-                        SizedBox(height: 10.0,),
-                        getOTandWage(5, overTimeController),
-                        SizedBox(height: 10.0,),
-                        getOTandWage(6, allowanceController),
-                        SizedBox(height: 10.0,),
-                        getName(7, advanceController),
-                        SizedBox(height: 10.0,),
-                        Center(
-                          child: FlatButton(
-                            child: Text(
-                              DOJ != null ? DOJ : "Enter Date of joining",
-                              style: TextStyle(color: Colors.white),
+
+          appBar:AppBar(
+            title: Text("Add employee"),
+
+          ),
+          body:SingleChildScrollView(
+            child: Center(
+              child: LayoutBuilder(
+                builder: (context,contraint)
+                { return Container(
+                    width:contraint.maxWidth>=480?contraint.maxWidth/3:contraint.maxWidth,
+                    color: BGColor,
+                    padding: EdgeInsets.only(right: 20.0, left: 20.0, top: 40.0),
+                    child:Form(
+                      key: _formKey,
+                      child: Column(
+                        children: [
+                          getName(1, nameController),
+                          SizedBox(height: 10.0,),
+                          getName(2, phoneController),
+                          SizedBox(height: 10.0,),
+                          getName(3, aadharController),
+                          SizedBox(height: 10.0,),
+                          getOTandWage(4, wageController),
+                          SizedBox(height: 10.0,),
+                          getOTandWage(5, overTimeController),
+                          SizedBox(height: 10.0,),
+                          getOTandWage(6, allowanceController),
+                          SizedBox(height: 10.0,),
+                          getName(7, advanceController),
+                          SizedBox(height: 10.0,),
+                          Center(
+                            child: FlatButton(
+                              child: Text(
+                                DOJ != null ? DOJ : "Enter Date of joining",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              onPressed: () {
+                                _selectDate(context);
+                              },
                             ),
-                            onPressed: () {
-                              _selectDate(context);
+                          ),
+                          SizedBox(height: 10.0,),
+                          FlatButton(
+                            child: Text(
+                              "Save",
+                              style: TextStyle(color:c),
+                            ),
+                            onPressed: () async {
+                              setState(() {
+                                c=Colors.green;
+                              });
+                              /* if (_formKey.currentState.validate()) {
+                                print(nameController.text);
+
+                              } */
+
+                              await Sync();
                             },
                           ),
-                        ),
-                        SizedBox(height: 10.0,),
-                        FlatButton(
-                          child: Text(
-                            "Press",
-                            style: TextStyle(color:c),
-                          ),
-                          onPressed: () async {
-                            setState(() {
-                              c=Colors.green;
-                            });
-                            if (_formKey.currentState.validate()) {
-                              print(nameController.text);
-                              await Sync();
-                            }
+                        ],
+                      ),
+                    ));},
 
-                          },
-                        ),
-                      ],
-                    ),
-                  ));},
-
+              ),
             ),
-          ),
-        )
-        ,
+          )
 
       );
+
+
     else
       return Container(
         color: Colors.red,
