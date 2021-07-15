@@ -1,4 +1,8 @@
+import 'dart:ui';
+
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:varnam_attendance/models/Employee.dart';
 import 'package:varnam_attendance/models/InputFotmatter.dart';
 
 String getHints(int type) {
@@ -113,3 +117,37 @@ String getValidation(int type,String val) {
 
 String getBoolValue(bool x)
 {return x==true?"2":"1";}
+
+
+Color getTileColor(int attendance) {
+  switch (attendance) {
+    case 0:
+     return  Colors.red;
+
+    case 1:
+      return Colors.orangeAccent;
+
+
+    case 2:
+      return Colors.green;
+
+  }
+}
+
+
+
+String getAtt(int val) {
+  switch (val) {
+    case 0:
+      return "  Absent  ";
+
+    case 1:
+      return "  Half-day  ";
+
+    case 2:
+      return "  Present  ";
+  }
+}
+
+
+

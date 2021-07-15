@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:varnam_attendance/Screens/AddEmployee.dart';
 import 'package:varnam_attendance/Screens/MarkAttendance.dart';
+import 'package:varnam_attendance/Screens/viewEmployee.dart';
 
 void main() {
   runApp(MyApp());
@@ -18,7 +19,8 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       //home: addEmployee(),
-       home:markAttendance(),
+      // home:markAttendance(),
+      home:viewEmployee(),
     );
   }
 }
