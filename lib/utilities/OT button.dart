@@ -1,21 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:varnam_attendance/Constants/markAttendanceConstants.dart';
+import 'package:varnam_attendance/Firebase/currentMonth.dart';
 
 import 'functions.dart';
 
 class OTButton extends StatefulWidget {
   Function([int x]) notifyParent;
   int a;
-  OTButton(this.notifyParent,[this.a]);
+  SharedPreferences my;
+  OTButton(this.notifyParent,this.my,[this.a]);
   @override
-  OTButtonState createState() => OTButtonState(notifyParent,this.a);
+  OTButtonState createState() => OTButtonState(notifyParent,this.my,this.a);
 }
 
 class OTButtonState extends State<OTButton> {
   Function([int x])  notifyParent;
+  SharedPreferences my;
   int a;
-  OTButtonState(this.notifyParent,[this.a]);
-  int OT=2;
+  DatabaseAttendanceService d = new DatabaseAttendanceService();
+  OTButtonState(this.notifyParent,this.my,[this.a]);
+  int OT;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    OT=my.getInt("defaultOT")??3;
+  }
   @override
   Widget build(BuildContext context) {
     return  a!=1? Column(
@@ -25,11 +36,11 @@ class OTButtonState extends State<OTButton> {
         Row(
           mainAxisAlignment:MainAxisAlignment.center,
           children: [
-          getButtons(-1),
+            getButtons(-1),
             getButtons(1)
 
 
-        ],)
+          ],)
       ],
 
 
@@ -48,13 +59,17 @@ class OTButtonState extends State<OTButton> {
   Widget getButtons(int x) {
     return RawMaterialButton(
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      onPressed: () {
-        int a;
-        a= OT!=null?OT + x:1;
-        notifyParent(a);
+
+      onPressed: () async{
+
+        int i;
+        i= OT!=null?OT + x:1;
+        notifyParent(i);
         setState(() {
-          OT = a;
+          OT = i;
         });
+        if(a==1)
+          my.setInt("defaultOT", OT);
       },
       elevation: 2.0,
       fillColor: Colors.white,

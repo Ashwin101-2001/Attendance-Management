@@ -1,23 +1,33 @@
 
 
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:varnam_attendance/Firebase/currentMonth.dart';
 
 import 'functions.dart';
 
 class attendanceButton extends StatefulWidget {
   Function([int x]) notifyParent;
+  attendanceButton(this.notifyParent,this.my,[this.a]);
   int a;
-  attendanceButton(this.notifyParent,[this.a]);
+  SharedPreferences my;
   @override
-  attendanceButtonState createState() => attendanceButtonState(notifyParent);
+  attendanceButtonState createState() => attendanceButtonState(notifyParent,this.my,this.a);
 }
 
 class attendanceButtonState extends State<attendanceButton> {
   Function([int x])  notifyParent;
   int a;
-  attendanceButtonState(this.notifyParent,[this.a]);
-  int selectAttendance=2;
+  DatabaseAttendanceService d = new DatabaseAttendanceService();
+  SharedPreferences my;
+  attendanceButtonState(this.notifyParent,this.my,[this.a]);
+  int selectAttendance;
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    selectAttendance=my.getInt("defaultAttendance")??2;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,11 +41,15 @@ class attendanceButtonState extends State<attendanceButton> {
         height: 2,
         color:getTileColor(selectAttendance) ,
       ),
-      onChanged: (int newValue) {
+      onChanged: (int newValue) async  {
+
+
         setState(() {
           selectAttendance = newValue;
         });
         notifyParent(newValue);
+        if(a==1)
+          my.setInt("defaultAttendance", selectAttendance);
       },
       items: <int>[0,1,2]
           .map<DropdownMenuItem<int>>((int  value) {

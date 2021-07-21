@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:varnam_attendance/Constants/addEmployeeConstants.dart';
 import 'package:varnam_attendance/Firebase/EmployeeList.dart';
 import 'package:varnam_attendance/Firebase/currentMonth.dart';
+
 import 'package:varnam_attendance/models/Employee.dart';
 import 'package:intl/intl.dart';
 import 'package:varnam_attendance/models/InputFotmatter.dart';
@@ -47,6 +48,7 @@ class _addEmployeeState extends State<addEmployee> {
   ScrollController scrollController= ScrollController();
   @override
   void initState() {
+    print("add init");
     super.initState();
     //DOJ=  DateFormat.yMMMd().format(DateTime.now());
     loading = true;
@@ -85,6 +87,7 @@ class _addEmployeeState extends State<addEmployee> {
       return Scaffold(
 
           appBar:AppBar(
+           // leading: Container(),
             title: Text("Add employee"),
 
           ),
@@ -141,6 +144,7 @@ class _addEmployeeState extends State<addEmployee> {
                               } */
 
                               await Sync();
+
                             },
                           ),
                         ],
@@ -170,7 +174,13 @@ class _addEmployeeState extends State<addEmployee> {
         int.parse(overTimeController.text.substring(3)),
         int.parse(advanceController.text.substring(3)));
 
+
+
+
+
     await DatabaseListService().insertUserData(e.name, e.map);
+    await DatabaseAttendanceService().setStaffData(e.name, {});
+
   }
 
   Widget getOTandWage(

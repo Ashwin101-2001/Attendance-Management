@@ -8,8 +8,7 @@ import 'package:varnam_attendance/Screens/MarkAttendance.dart';
 import 'package:varnam_attendance/models/Employee.dart';
 import 'package:varnam_attendance/utilities/Loading.dart';
 import 'package:varnam_attendance/utilities/screens_size.dart';
-
-class viewEmployee extends StatefulWidget {
+  class viewEmployee extends StatefulWidget {
   @override
   _viewEmployeeState createState() => _viewEmployeeState();
 }
@@ -28,6 +27,7 @@ class _viewEmployeeState extends State<viewEmployee> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    print("view init");
     loading = true;
     side = false;
     init();
@@ -105,9 +105,8 @@ class _viewEmployeeState extends State<viewEmployee> {
     child: ListView(
       children: [
                 GestureDetector(
-                  onTap: ()
-                  {
-                    Navigator.pushReplacement(
+                  onTap: () {
+                    Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => addEmployee()),
                     );
@@ -118,34 +117,48 @@ class _viewEmployeeState extends State<viewEmployee> {
                   ),
                 ),
                 GestureDetector(
-                  onTap: ()
-                  { Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => markAttendance()),
-                  );},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => markAttendance()),
+                    );
+                  },
                   child: ListTile(
                     title: Text("Attendance"),
                     leading: Icon(Icons.thumb_up_alt_outlined),
                   ),
                 ),
-
                 GestureDetector(
-                  onTap: ()
-                  { Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => addEmployee()),
-                  );},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => addEmployee()),
+                    );
+                  },
+                  child: ListTile(
+                    title: Text("Payment"),
+                    leading: Icon(Icons.monetization_on_outlined),
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => addEmployee()),
+                    );
+                  },
                   child: ListTile(
                     title: Text("Get Excel/CSV"),
                     leading: Icon(Icons.file_download),
                   ),
                 ),
                 GestureDetector(
-                  onTap: ()
-                  { Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => addEmployee()),
-                  );},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => addEmployee()),
+                    );
+                  },
                   child: ListTile(
                     title: Text("Settings"),
                     leading: Icon(Icons.settings),

@@ -12,8 +12,8 @@ final TextStyle buttonStyle=TextStyle(
 final TextStyle textStyle1=TextStyle(
   fontWeight: FontWeight.bold,
   fontSize: 20.0,
-  color: Colors.blue[800],
-  backgroundColor: Colors.orange,
+  color: Colors.orange,
+
 );
 
 

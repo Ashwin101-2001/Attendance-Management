@@ -4,17 +4,17 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:varnam_attendance/models/Employee.dart';
 
 
-class DatabaseService {
+class DatabaseAttendanceService {
 
-  final String uid;
+  //final String uid;
 
-  DatabaseService({ this.uid });
+  DatabaseAttendanceService();
 
   // collection reference
   final CollectionReference brewCollection = FirebaseFirestore.instance
-      .collection('brews');
+      .collection('Attendance');
 
-  Future<void> updateUserData(String id,Map<String,dynamic> map ) async {
+  Future<void> updateStaffData(String id,Map<String,dynamic> map ) async {
     bool x = await Check(id);
     if(x)
     await brewCollection.doc(id).update(map);
@@ -22,15 +22,14 @@ class DatabaseService {
       await brewCollection.doc(id).set(map);
 
   }
-  Future<void> setUserData(String id,Map<String,dynamic> map ) async {
-
+  Future<void> setStaffData(String id,Map<String,dynamic> map ) async {
+    await brewCollection.doc(id).set(map);
   }
 
 
   Future<bool> Check(String id) async {
     print("a");
     QuerySnapshot x=await brewCollection.get();
-    List<Employee> list = List<Employee>();
     print("a");
 
     for (DocumentSnapshot a in x.docs) {
@@ -41,7 +40,24 @@ class DatabaseService {
      return false;
   }
 
+  Map<String,Map<String,dynamic>> mapFromQuery(QuerySnapshot x)
+  {  Map<String,Map<String,dynamic>> y=  Map<String,Map<String,dynamic>>();
+    for(QueryDocumentSnapshot d in x.docs)
+    {  y[d.id]=d.data();
+    }
+    return y;
+  }
 
+
+
+
+
+
+
+
+  Stream<Map<String,Map<String,dynamic>>> get stream {
+    return brewCollection.snapshots().map(mapFromQuery);
+  }
 
 
 

@@ -59,13 +59,13 @@ List<TextInputFormatter> getFormatters(int type) {
   List<TextInputFormatter> y = List<TextInputFormatter>();
   switch (type) {
     case 2:
-      y.add(LengthLimitingTextInputFormatter(11));
+      //y.add(LengthLimitingTextInputFormatter(11));
       y.add(FilteringTextInputFormatter.digitsOnly);
       y.add(CustomInputFormatter(5));
       return y;
 
     case 3:
-      y.add(LengthLimitingTextInputFormatter(14));
+      //y.add(LengthLimitingTextInputFormatter(14));
       y.add(FilteringTextInputFormatter.digitsOnly);
       y.add(CustomInputFormatter(4));
       return y;
@@ -90,17 +90,18 @@ String getValidation(int type,String val) {
 
       break;
     case 2:
-      if (val != "") {
+    /* if (val != "") {
         if (!(val.length == 11)) return "Enter a valid 10 digit phone number";
       } else
-        return "Field is empty !!";
+        return "Field is empty !!"; */
       break;
 
     case 3:
-      if (val != "") {
+    /*   if (val != "") {
         if (!(val.length == 14)) return "Enter a valid 12 digit Aadhar number";
       } else
-        return "Field is empty !!";
+        return "Field is empty !!"*/
+
       break;
     case 4:
     case 5:
@@ -134,6 +135,35 @@ Color getTileColor(int attendance) {
   }
 }
 
+
+String getaddedzero(int x,[int y])
+{
+  String s="";
+  if(y==null)
+  { if(x<10) {
+    s = "0$x";
+    return s;
+  }
+  else
+    return "$x";}
+  else if(y==3)
+  {
+
+
+    if(x<10) {
+      s = "00$x";
+      return s;
+    }
+    else if(x>=10&&x<100)
+      return "0$x";
+    else
+      return "$x";
+  }
+
+
+
+
+}
 
 
 String getAtt(int val) {

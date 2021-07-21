@@ -14,9 +14,9 @@ class DatabaseListService {
   DatabaseListService({ this.uid });
 
   // collection reference
-  final CollectionReference Employees= FirebaseFirestore.instance.collection('VARNAMEmpList');
+  final CollectionReference Employees= FirebaseFirestore.instance.collection('Staff details');
 
-  void updateUserData(String id, Map<String, dynamic> map) async {  //Do not call update on new documents
+  void updateStaffData(String id, Map<String, dynamic> map) async {  //Do not call update on new documents
     await Employees.doc(id).update(map);
   }
 

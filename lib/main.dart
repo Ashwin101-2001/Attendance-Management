@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:varnam_attendance/Screens/AddEmployee.dart';
 import 'package:varnam_attendance/Screens/MarkAttendance.dart';
 import 'package:varnam_attendance/Screens/viewEmployee.dart';
+import 'package:varnam_attendance/Wrapper.dart';
 
 void main() {
   runApp(MyApp());
@@ -20,7 +21,7 @@ class MyApp extends StatelessWidget {
       ),
       //home: addEmployee(),
       // home:markAttendance(),
-      home:viewEmployee(),
+      home:Wrapper(),
     );
   }
 }
