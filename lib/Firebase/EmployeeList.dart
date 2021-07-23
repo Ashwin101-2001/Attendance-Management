@@ -30,7 +30,7 @@ class DatabaseListService {
 
   Future<List<Employee>> getEmployeeList() async {
     print("a");
-    QuerySnapshot x=await Employees.where('wage',isGreaterThan: 0).get();
+    QuerySnapshot x=await Employees.get();
     List<Employee> list = List<Employee>();
     print("a");
 

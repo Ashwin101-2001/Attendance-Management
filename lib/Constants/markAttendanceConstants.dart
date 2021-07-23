@@ -16,6 +16,13 @@ final TextStyle textStyle1=TextStyle(
 
 );
 
+final TextStyle dateStyle=TextStyle(
+  fontWeight: FontWeight.bold,
+  fontSize: 20.0,
+  color: Colors.orange,
+
+);
+
 
 double iconSize=15.0;
 
@@ -36,4 +43,5 @@ double width2=0.3;
 
 Color focusedBorderColor1=Colors.green;
 Color enabledBorderColor1=Colors.green;
-Color BGColor1=Colors.grey[850];
+Color BGColor1=Colors.white;
+Color arrowColor=Colors.orange;

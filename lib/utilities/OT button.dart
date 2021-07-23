@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:varnam_attendance/Constants/markAttendanceConstants.dart';
-import 'package:varnam_attendance/Firebase/currentMonth.dart';
+import 'package:varnam_attendance/Firebase/attendanceDatabase.dart';
 
 import 'functions.dart';
 
 class OTButton extends StatefulWidget {
-  Function([int x]) notifyParent;
+  Function([double x]) notifyParent;
   int a;
   SharedPreferences my;
   OTButton(this.notifyParent,this.my,[this.a]);
@@ -15,17 +15,17 @@ class OTButton extends StatefulWidget {
 }
 
 class OTButtonState extends State<OTButton> {
-  Function([int x])  notifyParent;
+  Function([double x])  notifyParent;
   SharedPreferences my;
   int a;
   DatabaseAttendanceService d = new DatabaseAttendanceService();
   OTButtonState(this.notifyParent,this.my,[this.a]);
-  int OT;
+  double OT;
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    OT=my.getInt("defaultOT")??3;
+    OT=my.getDouble("defaultOT")??3.0;
   }
   @override
   Widget build(BuildContext context) {
@@ -36,8 +36,8 @@ class OTButtonState extends State<OTButton> {
         Row(
           mainAxisAlignment:MainAxisAlignment.center,
           children: [
-            getButtons(-1),
-            getButtons(1)
+            getButtons(-0.25),
+            getButtons(0.25)
 
 
           ],)
@@ -47,29 +47,29 @@ class OTButtonState extends State<OTButton> {
 
     ):Row(
       children: [
-        getButtons(-1),
+        getButtons(-0.25),
         Text("   $OT   ",style: TextStyle(color: Colors.black,decoration: TextDecoration.underline,decorationColor: Colors.green,fontSize: 25)),
-        getButtons(1)
+        getButtons(0.25)
       ],
     );
 
 
   }
 
-  Widget getButtons(int x) {
+  Widget getButtons(double x) {
     return RawMaterialButton(
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
 
       onPressed: () async{
 
-        int i;
+        double i;
         i= OT!=null?OT + x:1;
         notifyParent(i);
         setState(() {
           OT = i;
         });
         if(a==1)
-          my.setInt("defaultOT", OT);
+          my.setDouble("defaultOT", OT);
       },
       elevation: 2.0,
       fillColor: Colors.white,

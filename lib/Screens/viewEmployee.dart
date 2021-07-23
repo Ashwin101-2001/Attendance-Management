@@ -4,6 +4,7 @@ import 'package:varnam_attendance/Constants/markAttendanceConstants.dart';
 import 'package:varnam_attendance/Constants/viewConstants.dart';
 import 'package:varnam_attendance/Firebase/EmployeeList.dart';
 import 'package:varnam_attendance/Screens/AddEmployee.dart';
+import 'package:varnam_attendance/Screens/CsvDownload.dart';
 import 'package:varnam_attendance/Screens/MarkAttendance.dart';
 import 'package:varnam_attendance/models/Employee.dart';
 import 'package:varnam_attendance/utilities/Loading.dart';
@@ -144,7 +145,7 @@ class _viewEmployeeState extends State<viewEmployee> {
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => addEmployee()),
+                      MaterialPageRoute(builder: (context) => csvDownloader()),
                     );
                   },
                   child: ListTile(
@@ -189,7 +190,7 @@ class _viewEmployeeState extends State<viewEmployee> {
       ),
       child: Form(
         key: _formKey,
-        child: getSearch(),
+        child: getSearchBar(),
       ),
     ));
     for (Employee e in eList1) {
@@ -205,7 +206,7 @@ class _viewEmployeeState extends State<viewEmployee> {
     return a;
   }
 
-  Widget getSearch()
+  Widget getSearchBar()
   {
     return TextFormField(
       controller: sController,

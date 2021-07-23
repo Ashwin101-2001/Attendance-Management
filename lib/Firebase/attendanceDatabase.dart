@@ -11,25 +11,25 @@ class DatabaseAttendanceService {
   DatabaseAttendanceService();
 
   // collection reference
-  final CollectionReference brewCollection = FirebaseFirestore.instance
+  final CollectionReference attendanceCollection = FirebaseFirestore.instance
       .collection('Attendance');
 
   Future<void> updateStaffData(String id,Map<String,dynamic> map ) async {
     bool x = await Check(id);
     if(x)
-    await brewCollection.doc(id).update(map);
+    await attendanceCollection.doc(id).update(map);
     else
-      await brewCollection.doc(id).set(map);
+      await attendanceCollection.doc(id).set(map);
 
   }
   Future<void> setStaffData(String id,Map<String,dynamic> map ) async {
-    await brewCollection.doc(id).set(map);
+    await attendanceCollection.doc(id).set(map);
   }
 
 
   Future<bool> Check(String id) async {
     print("a");
-    QuerySnapshot x=await brewCollection.get();
+    QuerySnapshot x=await attendanceCollection.get();
     print("a");
 
     for (DocumentSnapshot a in x.docs) {
@@ -50,15 +50,19 @@ class DatabaseAttendanceService {
 
 
 
-
-
-
-
-
   Stream<Map<String,Map<String,dynamic>>> get stream {
-    return brewCollection.snapshots().map(mapFromQuery);
+    return attendanceCollection.snapshots().map(mapFromQuery);
   }
 
 
+  Future<Map<String, Map<String, dynamic>>> getAttendanceCollection() async {
+    QuerySnapshot x = await attendanceCollection.get();
+    Map<String, Map<String, dynamic>> map = Map<String, Map<String, dynamic>>();
 
+    for (DocumentSnapshot a in x.docs) {
+      map[a.id] = a.data();
+    }
+
+    return map;
+  }
 }

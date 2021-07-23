@@ -3,13 +3,11 @@ class Employee {
   String _aadhar;
   String _DOJ;
   String _phone;
-  int _wage;
-  int _allowance;
-  int _attendance;
-  int _overTimeHours;
-  int _overTime;
-  int _advance;
-  bool _checked;
+  String _wage;
+  String _allowance;
+  String _overTime;
+  String _advance;
+  //bool _checked;
 
 
   Employee(this._name, this._aadhar, this._DOJ, this._phone, this._allowance,
@@ -26,18 +24,15 @@ class Employee {
 
   String get phone => _phone;
 
-  int get allowance => _allowance;
+  String get allowance => _allowance;
 
-  int get attendance => _attendance;
-
-  int get overTimeHours => _overTimeHours;
-  int get overTime => _overTime;
-  int get advance => _advance;
+  String get overTime => _overTime;
+  String get advance => _advance;
 
 
-  bool get checked => _checked;
+ // bool get checked => _checked;
 
-  int get wage => _wage;
+  String get wage => _wage;
 
   set name(String d) {
     this._name = d;
@@ -51,31 +46,24 @@ class Employee {
     this._phone = d;
   }
 
-  set attendance(int x) {
-    this._attendance = x;
-  }
 
-  set allowance(int x) {
+  set allowance(String x) {
     this._allowance = x;
   }
 
-  set overTimeHours(int x) {
-    this._overTimeHours = x;
-  }
 
-  set overTime(int x) {
+
+  set overTime(String x) {
     this._overTime = x;
   }
-  set wage(int x) {
+  set wage(String x) {
     this._wage = x;
   }
-  set advance(int x) {
+  set advance(String x) {
     this._advance = x;
   }
 
-  set checked(bool x) {
-    this._checked = x;
-  }
+  //set checked(bool x) {this._checked = x;}
 
 
   Map<String, dynamic> get map {
@@ -106,9 +94,7 @@ class Employee {
     this._allowance = map['allowance'];
     this._overTime = map['overTime'];
     this._advance = map['advance'];
-    this._attendance=2;
-    this._overTimeHours=3;
-    this._checked=false;
+   // this._checked=false;
 
   }
 }

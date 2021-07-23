@@ -27,7 +27,6 @@ String getHints(int type) {
   }
 }
 
-
 String getLabel(int type) {
   switch (type) {
     case 1:
@@ -47,7 +46,6 @@ String getLabel(int type) {
       return " Employee allowance";
     case 7:
       return "Advance";
-
   }
 }
 
@@ -80,8 +78,7 @@ List<TextInputFormatter> getFormatters(int type) {
   }
 }
 
-
-String getValidation(int type,String val) {
+String getValidation(int type, String val) {
   switch (type) {
     case 1:
       if (val != "") {
@@ -90,14 +87,14 @@ String getValidation(int type,String val) {
 
       break;
     case 2:
-    /* if (val != "") {
+      /* if (val != "") {
         if (!(val.length == 11)) return "Enter a valid 10 digit phone number";
       } else
         return "Field is empty !!"; */
       break;
 
     case 3:
-    /*   if (val != "") {
+      /*   if (val != "") {
         if (!(val.length == 14)) return "Enter a valid 12 digit Aadhar number";
       } else
         return "Field is empty !!"*/
@@ -115,56 +112,98 @@ String getValidation(int type,String val) {
   return (val != "" ? null : "Enter a valid name");
 }
 
+String getBoolValue(bool x) {
+  return x == true ? "2" : "1";
+}
 
-String getBoolValue(bool x)
-{return x==true?"2":"1";}
+int roundToTens(int n) {
+  // Smaller multiple
+  int a = ((n / 10) * 10).truncate();
 
+  // Larger multiple
+  int b = a + 10;
+
+  // Return of closest of two
+  return (n - a > b - n) ? b : a;
+}
+
+double getWages(hours, wage) {
+  int s = int.parse(wage.substring(0, 1));
+  var w = double.parse(wage.substring(1));
+  return s == 1 ? hours * w : w;
+}
+
+double getAllowance(allowance, double days) {
+  int s = int.parse(allowance.substring(0, 1));
+  double all=double.parse(allowance.substring(1));
+  return s == 1 ? all * days.floor() : all;
+}
+
+double getPf(wages) {
+  return wages * 0.096;
+}
+
+double getEsi(total) {
+  return total * 0.0175;
+}
+
+double getAttendance(String name, attendanceMap,month) {
+
+  double count = 0.0;
+  print("map: ${attendanceMap[name][month].toString()}");
+  for (String s in attendanceMap[name][month].values) {
+
+    print(" Att:::: name: $name $s ${int.parse(s.substring(0, 1))}");
+    count += int.parse(s.substring(0, 1));
+  }
+
+  return count / 2; //0,1,2
+}
+
+double getOT(name, attendanceMap,month) {
+  double count = 0.0;
+
+  for (String s in attendanceMap[name][month].values) {
+    count += double.parse(s.substring(1));
+  }
+
+  return count;
+}
 
 Color getTileColor(int attendance) {
   switch (attendance) {
     case 0:
-     return  Colors.red;
+      return Colors.red;
 
     case 1:
       return Colors.orangeAccent;
 
-
     case 2:
       return Colors.green;
 
+    default:
+      return Colors.white;
   }
 }
 
-
-String getaddedzero(int x,[int y])
-{
-  String s="";
-  if(y==null)
-  { if(x<10) {
-    s = "0$x";
-    return s;
-  }
-  else
-    return "$x";}
-  else if(y==3)
-  {
-
-
-    if(x<10) {
+String getaddedzero(int x, [int y]) {
+  String s = "";
+  if (y == null) {
+    if (x < 10) {
+      s = "0$x";
+      return s;
+    } else
+      return "$x";
+  } else if (y == 3) {
+    if (x < 10) {
       s = "00$x";
       return s;
-    }
-    else if(x>=10&&x<100)
+    } else if (x >= 10 && x < 100)
       return "0$x";
     else
       return "$x";
   }
-
-
-
-
 }
-
 
 String getAtt(int val) {
   switch (val) {
@@ -178,6 +217,3 @@ String getAtt(int val) {
       return "  Present  ";
   }
 }
-
-
-

@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:varnam_attendance/Constants/addEmployeeConstants.dart';
 import 'package:varnam_attendance/Firebase/EmployeeList.dart';
-import 'package:varnam_attendance/Firebase/currentMonth.dart';
+import 'package:varnam_attendance/Firebase/attendanceDatabase.dart';
 
 import 'package:varnam_attendance/models/Employee.dart';
 import 'package:intl/intl.dart';
@@ -70,13 +70,14 @@ class _addEmployeeState extends State<addEmployee> {
          nameController.text=e.name;
          phoneController.text = e.phone;
          aadharController.text = e.aadhar;
-         String s=e.wage.toString();
+         String s=e.wage;
          per1=s[1]=='2'?true:false;
         wageController.text = s.substring(1);
-        overTimeController.text = e.overTime.toString();
-          s=e.allowance.toString();
+        overTimeController.text = e.overTime;
+          s=e.allowance;
           per2=s[1]=='2'?true:false;
         allowanceController.text = s.substring(1);
+        advanceController.text=e.advance;
         DOJ=e.DOJ;
       }
   }
@@ -169,10 +170,10 @@ class _addEmployeeState extends State<addEmployee> {
         aadharController.text,
         DOJ,
         phoneController.text,
-        int.parse(getBoolValue(per2)+allowanceController.text.substring(3)),
-        int.parse(getBoolValue(per1)+wageController.text.substring(3)),
-        int.parse(overTimeController.text.substring(3)),
-        int.parse(advanceController.text.substring(3)));
+       getBoolValue(per2)+allowanceController.text.substring(3),
+       getBoolValue(per1)+wageController.text.substring(3),
+       overTimeController.text.substring(3),
+       advanceController.text.substring(3));
 
 
 
