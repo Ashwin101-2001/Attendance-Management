@@ -34,12 +34,15 @@ class _addEmployeeState extends State<addEmployee> {
   TextEditingController allowanceController = new TextEditingController();
   TextEditingController advanceController = new TextEditingController();
   String name;
+  String gender;
   int allowance;
   int wage = 1000;
   bool per1;
   bool per2;
   String DOJ;
-   Color  c=Colors.white;
+  String t="Save";
+   Color  c=Colors.pink;
+   List<bool> selections=[false,false];
 
   // List<String> labels
 
@@ -54,7 +57,7 @@ class _addEmployeeState extends State<addEmployee> {
     loading = true;
     per1 = false;
     per2 = false;
-      c=Colors.white;
+
     init();
     setState(() {
       loading = false;
@@ -86,6 +89,7 @@ class _addEmployeeState extends State<addEmployee> {
   Widget build(BuildContext context) {
     if (!loading)
       return Scaffold(
+        backgroundColor: BGColorScaf,
 
           appBar:AppBar(
            // leading: Container(),
@@ -98,13 +102,49 @@ class _addEmployeeState extends State<addEmployee> {
                 builder: (context,contraint)
                 { return Container(
                     width:contraint.maxWidth>=480?contraint.maxWidth/3:contraint.maxWidth,
-                    color: BGColor,
-                    padding: EdgeInsets.only(right: 20.0, left: 20.0, top: 40.0),
+                    //color: BGColor,
+                    padding: EdgeInsets.only(right: 20.0, left: 20.0, top: 40.0,bottom: 40),
                     child:Form(
                       key: _formKey,
                       child: Column(
                         children: [
                           getName(1, nameController),
+                          SizedBox(height: 10.0,),
+                          ToggleButtons(
+                          selectedColor: Colors.pink,
+                            selectedBorderColor: Colors.pink[800],
+                            borderColor: Colors.grey[600],
+                            borderWidth: 2.0,
+                            //fillColor: Colors.white,
+                            color: Colors.blue,
+                            children: [
+                             Container(
+                               width:toggleWidth,
+                               child: Center(child: Text("Male")),
+                             ),
+                              Container(
+                                width:toggleWidth,
+                                child: Center(child: Text("Female")),
+                              ),
+
+                            ],
+                            onPressed: (int index)
+                            {  gender=index==0?"Male":"Female";
+                              if(index==0)
+                                {gender="Male";
+                                selections[1]=false;
+                                }
+                              else
+                                {gender="Female";
+                                selections[0]=false;}
+
+                                selections[index]=!selections[index];
+                                setState(() {
+
+                                });
+                            },
+                            isSelected: selections,
+                          ),
                           SizedBox(height: 10.0,),
                           getName(2, phoneController),
                           SizedBox(height: 10.0,),
@@ -117,9 +157,10 @@ class _addEmployeeState extends State<addEmployee> {
                           getOTandWage(6, allowanceController),
                           SizedBox(height: 10.0,),
                           getName(7, advanceController),
-                          SizedBox(height: 10.0,),
+                          SizedBox(height: 20.0,),
                           Center(
-                            child: FlatButton(
+                            child: ElevatedButton(
+                              style: b,
                               child: Text(
                                 DOJ != null ? DOJ : "Enter Date of joining",
                                 style: TextStyle(color: Colors.white),
@@ -129,22 +170,56 @@ class _addEmployeeState extends State<addEmployee> {
                               },
                             ),
                           ),
-                          SizedBox(height: 10.0,),
-                          FlatButton(
+                          SizedBox(height: 20.0,),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(primary: c),
                             child: Text(
-                              "Save",
-                              style: TextStyle(color:c),
+                              t,
+                              style: TextStyle(color:Colors.white),
                             ),
                             onPressed: () async {
-                              setState(() {
-                                c=Colors.green;
-                              });
-                              /* if (_formKey.currentState.validate()) {
-                                print(nameController.text);
+                               if(gender==null)
+                                 {  Scaffold.of(context).showSnackBar(SnackBar(
+                                   duration: Duration(milliseconds: 1500),
+                                   content: Row(
+                                     mainAxisAlignment: MainAxisAlignment.center,
+                                     children: [
+                                       Text("Pick a  Gender",style:snackStyle),
+                                     ],
+                                   ),
+                                   backgroundColor: Colors.red,
+                                 ));
 
-                              } */
+                                 }
+                               else
+                                 { if (_formKey.currentState.validate()&&t!="Saved !!") {
+                                     print(nameController.text);
+                                     await Sync();
+                                     setState(() {
+                                       t="Saved !!";
+                                       c=Colors.green;
+                                     });
 
-                              await Sync();
+                                   }
+                                   else{
+                                   setState(() {
+                                     c=Colors.red[800];
+                                   });
+                                     Scaffold.of(context).showSnackBar(SnackBar(
+                                   duration: Duration(milliseconds: 1500),
+                                   content: Row(
+                                     mainAxisAlignment: MainAxisAlignment.center,
+                                     children: [
+                                       Text("Enter valid fields",style:snackStyle),
+                                     ],
+                                   ),
+                                   backgroundColor: Colors.red,
+                                 ));}
+
+                                 }
+
+
+
 
                             },
                           ),
@@ -168,12 +243,13 @@ class _addEmployeeState extends State<addEmployee> {
   Future Sync() async {
     Employee e = new Employee(nameController.text,
         aadharController.text,
-        DOJ,
+        DOJ==""?"NA":DOJ,
         phoneController.text,
        getBoolValue(per2)+allowanceController.text.substring(3),
        getBoolValue(per1)+wageController.text.substring(3),
        overTimeController.text.substring(3),
-       advanceController.text.substring(3));
+       advanceController.text.substring(3),
+        gender);
 
 
 
@@ -191,9 +267,12 @@ class _addEmployeeState extends State<addEmployee> {
     return Row(
       children: [
         Expanded(flex: 6, child: getName(type, t)),
+        Expanded(flex:1,
+        child: Container(),),
         Expanded(
-          flex: 3,
-          child: FlatButton(
+          flex: 2,
+          child: ElevatedButton(
+            style:  b,
             onPressed: () {
               if (type == 4)
                 setState(() {
@@ -216,7 +295,6 @@ class _addEmployeeState extends State<addEmployee> {
 
   TextFormField getName(int type, TextEditingController controller) {
     return TextFormField(
-
       controller: controller,
       style: textStyle,
       keyboardType:
@@ -239,6 +317,7 @@ class _addEmployeeState extends State<addEmployee> {
         });
       },
     ):null,
+        errorStyle: errorStyle,
         labelText: getLabel(type),
         labelStyle: labelStyle,
         hintText: getHints(type),

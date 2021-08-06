@@ -30,22 +30,22 @@ String getHints(int type) {
 String getLabel(int type) {
   switch (type) {
     case 1:
-      return " Name";
+      return " Name *";
     case 2:
-      return " Phone Number";
+      return " Phone Number *";
 
     case 3:
       return "Aadhar Number";
 
     case 4:
-      return "Wage";
+      return "Wage *";
       break;
     case 5:
-      return "OverTime per hour";
+      return "OverTime per hour *";
     case 6:
-      return " Employee allowance";
+      return " Employee allowance *";
     case 7:
-      return "Advance";
+      return "Advance *";
   }
 }
 
@@ -57,15 +57,15 @@ List<TextInputFormatter> getFormatters(int type) {
   List<TextInputFormatter> y = List<TextInputFormatter>();
   switch (type) {
     case 2:
-      //y.add(LengthLimitingTextInputFormatter(11));
+      y.add(LengthLimitingTextInputFormatter(11));
       y.add(FilteringTextInputFormatter.digitsOnly);
-      y.add(CustomInputFormatter(5));
+      y.add(SpaceFormatter(5));
       return y;
 
     case 3:
-      //y.add(LengthLimitingTextInputFormatter(14));
+      y.add(LengthLimitingTextInputFormatter(14));
       y.add(FilteringTextInputFormatter.digitsOnly);
-      y.add(CustomInputFormatter(4));
+      y.add(SpaceFormatter(4));
       return y;
 
     case 4:
@@ -73,7 +73,7 @@ List<TextInputFormatter> getFormatters(int type) {
     case 6:
     case 7:
       y.add(FilteringTextInputFormatter.digitsOnly);
-      y.add(CustomInputFormatter1());
+      y.add(RsFormatter());
       return y;
   }
 }
@@ -84,20 +84,19 @@ String getValidation(int type, String val) {
       if (val != "") {
       } else
         return "Field is empty !!";
-
       break;
     case 2:
-      /* if (val != "") {
+       if (val != "") {
         if (!(val.length == 11)) return "Enter a valid 10 digit phone number";
       } else
-        return "Field is empty !!"; */
-      break;
+        return "Field is empty !!";
+     break;
 
     case 3:
-      /*   if (val != "") {
+         if (val != "") {
         if (!(val.length == 14)) return "Enter a valid 12 digit Aadhar number";
       } else
-        return "Field is empty !!"*/
+        return null;
 
       break;
     case 4:
@@ -118,7 +117,7 @@ String getBoolValue(bool x) {
 
 int roundToTens(int n) {
   // Smaller multiple
-  int a = ((n / 10) * 10).truncate();
+  int a = ((n / 10).floor() * 10);
 
   // Larger multiple
   int b = a + 10;
@@ -140,46 +139,61 @@ double getAllowance(allowance, double days) {
 }
 
 double getPf(wages) {
-  return wages * 0.096;
+  double num1 = double.parse(( wages * 0.096).toStringAsFixed(2));
+  return num1;
 }
 
 double getEsi(total) {
-  return total * 0.0175;
+  double num1 = double.parse(( total * 0.0175).toStringAsFixed(2));
+  return num1;
 }
 
 double getAttendance(String name, attendanceMap,month) {
 
   double count = 0.0;
   print("map: ${attendanceMap[name][month].toString()}");
-  for (String s in attendanceMap[name][month].values) {
+  if(attendanceMap[name][month]==null)
+    return count;
+  else if(attendanceMap[name][month].values==null)
+    return count;
+  else
+    {  for (String s in attendanceMap[name][month].values) {
 
-    print(" Att:::: name: $name $s ${int.parse(s.substring(0, 1))}");
-    count += int.parse(s.substring(0, 1));
-  }
+      print(" Att:::: name: $name $s ${int.parse(s.substring(0, 1))}");
+      count += int.parse(s.substring(0, 1));
+    }
 
-  return count / 2; //0,1,2
+    return count / 2; }
+//0,1,2
 }
 
 double getOT(name, attendanceMap,month) {
   double count = 0.0;
 
-  for (String s in attendanceMap[name][month].values) {
-    count += double.parse(s.substring(1));
-  }
 
-  return count;
+  if(attendanceMap[name][month]==null)
+    return count;
+  else if(attendanceMap[name][month].values==null)
+    return count;
+  else
+    { for (String s in attendanceMap[name][month].values) {
+      count += double.parse(s.substring(1));
+    }
+
+    return count;}
+
 }
 
 Color getTileColor(int attendance) {
   switch (attendance) {
     case 0:
-      return Colors.red;
+      return Colors.red[700];
 
     case 1:
-      return Colors.orangeAccent;
+      return Colors.orange[600];
 
     case 2:
-      return Colors.green;
+      return Colors.green[600];
 
     default:
       return Colors.white;
@@ -215,5 +229,26 @@ String getAtt(int val) {
 
     case 2:
       return "  Present  ";
+  }
+}
+
+
+String getit(type) {
+  switch (type) {
+    case 0:
+      return "No filters";
+
+    case 1:
+      return "Attendance";
+
+    case 2:
+      return "OverTime";
+  }
+}
+
+
+Employee getEmp(String name, List<Employee> l) {
+  for (Employee e in l) {
+    if (e.name == name) return e;
   }
 }

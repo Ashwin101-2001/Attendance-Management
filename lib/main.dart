@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:varnam_attendance/Screens/AddEmployee.dart';
 import 'package:varnam_attendance/Screens/MarkAttendance.dart';
+import 'package:varnam_attendance/Screens/Payments.dart';
 import 'package:varnam_attendance/Screens/viewEmployee.dart';
 import 'package:varnam_attendance/Wrapper.dart';
 
@@ -13,14 +14,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: '',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.pink,
       ),
       //home: addEmployee(),
-      // home:markAttendance(),
+      //home:markAttendance(),
+      //home:Payments(),
       home:Wrapper(),
     );
   }

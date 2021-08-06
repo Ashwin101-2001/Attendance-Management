@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:varnam_attendance/Firebase/attendanceDatabase.dart';
+import 'package:varnam_attendance/utilities/Loading.dart';
 
 import 'functions.dart';
 
@@ -27,11 +28,12 @@ class attendanceButtonState extends State<attendanceButton> {
     // TODO: implement initState
     super.initState();
     selectAttendance=my.getInt("defaultAttendance")??2;
+
   }
 
   @override
   Widget build(BuildContext context) {
-    return   DropdownButton<int>(
+    return DropdownButton<int>(
       value: selectAttendance,
       icon: const Icon(Icons.arrow_drop_down),
       iconSize: 24,
@@ -51,7 +53,7 @@ class attendanceButtonState extends State<attendanceButton> {
         if(a==1)
           my.setInt("defaultAttendance", selectAttendance);
       },
-      items: <int>[0,1,2]
+      items: <int>[2,1,0]
           .map<DropdownMenuItem<int>>((int  value) {
         return DropdownMenuItem<int>(
           value: value,

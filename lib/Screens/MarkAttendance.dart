@@ -18,16 +18,18 @@ import 'package:intl/intl.dart';
 
 class markAttendance extends StatefulWidget {
   DateTime now;
+
   markAttendance([this.now]);
+
   @override
   _markAttendanceState createState() => _markAttendanceState(this.now);
 }
 
 class _markAttendanceState extends State<markAttendance> {
-
   final _formKey = GlobalKey<FormState>();
 
   _markAttendanceState([this.now]);
+
   TextEditingController sController = new TextEditingController();
 
   /// OT and Att
@@ -42,6 +44,13 @@ class _markAttendanceState extends State<markAttendance> {
   String date;
   bool loading;
   DateTime now;
+  int filter;
+  int filter1;
+  double filterOT;
+  int filterAttendance;
+  bool checkAll=false;
+  bool settings=false;
+  Widget myWidget;
 
   ///   DS
   Map<String, bool> checkedMap;
@@ -50,7 +59,9 @@ class _markAttendanceState extends State<markAttendance> {
 
   SharedPreferences myPrefs;
   DatabaseAttendanceService d = new DatabaseAttendanceService();
-
+  double opac1 = 1;
+  Map<String, double> opac;
+  ScrollController s = new ScrollController();
 
   //=  List<String>();
 
@@ -59,14 +70,15 @@ class _markAttendanceState extends State<markAttendance> {
     print("mark init");
     // TODO: implement initState
     super.initState();
-    if(now==null)
-      now = DateTime.now();
+    if (now == null) now = DateTime.now();
     month = "${getaddedzero(now.month)}-${now.year}";
     date = now.day.toString();
     map = Map<String, Map<String, dynamic>>();
     checkedMap = Map<String, bool>();
     loading = true;
+    opac = Map<String, double>();
     init();
+    filter = 0;
     setState(() {
       loading = false;
     });
@@ -112,6 +124,20 @@ class _markAttendanceState extends State<markAttendance> {
             appBar: AppBar(
               //leading: Container(),
               title: Center(child: Text('Mark attendance')),
+              actions: [
+                Padding(
+                  padding:  EdgeInsets.fromLTRB(20, 0, 20, 0),
+                  child: IconButton(
+                    icon: Icon(Icons.settings),
+                    onPressed: ()
+                    {setState(() {
+                      // side = !side;
+                      myWidget=myWidget??getStatsWidget();
+                      myWidget=myWidget.key==ValueKey(2)?getStatsWidget():settingsStack();
+                    });},
+                  ),
+                )
+              ],
             ),
             body: StreamBuilder(
               stream: DatabaseAttendanceService().stream,
@@ -130,136 +156,215 @@ class _markAttendanceState extends State<markAttendance> {
                     print(map[k].toString());
                     print("");
                   }
-                  return SingleChildScrollView(
-                    child: Center(
-                      child: LayoutBuilder(
-                        builder: (context, contraint) {
-                          return Container(
-                            padding: EdgeInsets.fromLTRB(20, 20, 20, 20),
-                            child: Column(
+                  return Center(
+                    child: LayoutBuilder(
+                      builder: (context1, contraint) {
+                        return Container(
+                          padding: EdgeInsets.fromLTRB(20, 0, 0, 20),
+                          child: Scrollbar(
+                            isAlwaysShown: true,
+                            controller: s,
+                            child: ListView(
+                              controller: s,
+                              children: [
 
-                             children: [
-                               Center(
-                                 child: Container(
-                                   margin: EdgeInsets.all(20.0),
-                                   child: FlatButton(
-                                     child:
-                                     RichText(
-                                       text: TextSpan(
-                                         children: [
-                                           TextSpan(
-                                             text:   now != null ?  "  ${DateFormat.yMMMd().format(now)}  " : "  Enter Date of joining  ",
-                                             style: dateStyle,
-                                           ),
-                                           WidgetSpan(
-                                             child: Icon(Icons.arrow_drop_down,color: arrowColor,),
-                                           ),
-
-                                         ],
-                                       ),
-                                     ),
-
-                                     onPressed: () {
-                                       _selectDate(context);
-                                     },
-                                   ),
-                                 ),
-                               ),
                                 Row(
-                               children: [
-                                 Expanded(
-                                   flex: 3,
-                                   child: Column(
-                                     children: getList(),
-                                   ),
-                                 ),
-                                 Expanded(
-                                   flex: 1,
-                                   child: getStatsWidget(),
-                                 )
-                               ],
-                             ),],
+
+                                  children: [
+                                    Expanded(
+                                      flex: 3,
+                                      child: Container(
+                                        margin:EdgeInsets.only(
+                                          top:20,
+                                        ),
+                                        padding: EdgeInsets.only(
+
+                                          left: 15.0,
+                                          right: 15.0,
+                                        ),
+                                        decoration: BoxDecoration(
+                                            border: Border.all(
+                                                color: Colors.pink,
+                                                width: 3.0)),
+                                        child: Column(
+                                          children: getList(),
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      flex: 1,
+                                      child: Container(
+                                        /* child: Stack(
+                        children: [ Center(child: getStatsWidget()),
+                        Align(
+                          alignment: Alignment.topRight,
+                          child:   settings==true?settingsStack():Container(),
+                        )
+                      ]),*/
+                                        child: AnimatedSwitcher(
+                                          duration: Duration(milliseconds: 350),
+                                          child: myWidget??getStatsWidget(),
+                                          transitionBuilder:
+                                              (Widget child, Animation<double> animation) {
+                                            return FadeTransition(child: child, opacity: animation,);
+                                          },
+                                        ),
+
+
+
+
+                        ),
+
+                                      )
+                                    ],
+                                ),
+                              ],
                             ),
-                          );
-                        },
-                      ),
+                          ),
+                        );
+                      },
                     ),
                   );
                 } else
                   return Loader();
               },
             ),
-            bottomNavigationBar: BottomAppBar(
-                child: getBottomAppBar()),
+            bottomNavigationBar: Builder(
+                builder:(context1)
+                {return getBottomAppBar(context1);},),
           );
   }
 
 
-   /// Widget Functions
+
+  /// Widget Functions
   List<Widget> getList() {
     List<Widget> a = List<Widget>();
+
     a.add(Container(
-      decoration: BoxDecoration(
-        border:
-        Border.all(color: getTileColor(defaultAttendance ?? 2), width: 1.0),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          attendanceButton(refresh1, myPrefs, 1),
-          OTButton(ref1, myPrefs, 1),
-        ],
+      height: 10.0,
+      color: BGColor1,
+    ));
+    a.add( Center(
+      child: Container(
+        margin: EdgeInsets.all(10.0),
+        width:200,
+        child: FlatButton(
+          child: RichText(
+            text: TextSpan(
+              children: [
+                TextSpan(
+                  text: now != null
+                      ? "  ${DateFormat.yMMMd().format(now)}  "
+                      : "  Enter Date of joining  ",
+                  style:dateStyle,
+                ),
+                WidgetSpan(
+                  child: Icon(
+                    Icons.arrow_drop_down,
+                    color: arrowColor,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          onPressed: () {
+            _selectDate(context);
+          },
+        ),
       ),
     ));
+
+
+
 
     a.add(Container(
       padding: EdgeInsets.only(right: 20.0, left: 20.0, top: 5.0, bottom: 5.0),
       decoration: BoxDecoration(
-        border:
-        Border.all(color: getTileColor(defaultAttendance ?? 2), width: 1.0),
-      ),
+          //border: Border.all(color: Colors.pink, width: 1.0),
+          ),
       child: Form(
         key: _formKey,
         child: getSearchBar(),
       ),
     ));
+    a.add(Container(
+      height: 10.0,
+      color: BGColor1,
+    ));
+    a.add(getFilterRow());
+    a.add(Container(
+      height: 10.0,
+      color: BGColor1,
+    ));
     for (String k in searchList) {
       //print("k:$k l:${searchList.length}   contains:${searchList.contains(k)}");
       //if((searchList.length!=0&&searchList.contains(k)))
       //if(DateTime.now().day!=int.parse(date))
-      a.add(CheckboxListTile(
-        tileColor: getTileColor(int.parse(getAttendance(k))),
-        //get attendance
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Expanded(
-              flex: 6,
-              child: Text(k),
-            ),
-            Expanded(
-              flex: 4,
-              child: Text(getOT(k)),
-            )
-          ],
-        ),
-        secondary: Icon(Icons.person),
-        controlAffinity: ListTileControlAffinity.trailing,
-        value: checkedMap[k] ?? false,
-        onChanged: (val) {
-          setState(() {
-            checkedMap[k] = val;
-          });
-        },
-        activeColor: Colors.red,
-      ));
-      a.add(SizedBox(
-        height: 10.0,
-      ));
+      if ((filterOT == null && filterAttendance == null) ||
+          (double.parse(getOT(k)) == (filterOT) ||
+              int.parse(getAttendance(k)) == (filterAttendance))||filter==0) {
+        a.add(CheckboxListTile(
+          tileColor: getTileColor(int.parse(getAttendance(k))),
+          //get attendance
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Expanded(
+                flex: 6,
+                child: Text(k),
+              ),
+              Expanded(
+                flex: 4,
+                child: Text(getOT(k)),
+              )
+            ],
+          ),
+          secondary: Icon(Icons.person),
+          controlAffinity: ListTileControlAffinity.trailing,
+          value: checkedMap[k] ?? false,
+          onChanged: (val) {
+            setState(() {
+              checkedMap[k] = val;
+            });
+          },
+          activeColor: Colors.red,
+        ));
+        a.add(Container(
+          height: 10.0,
+          color: BGColor1,
+        ));
+      }
     }
 
     return a;
   }
+
+  Widget getFilterRow() {
+    List<Widget> list = List<Widget>();
+    list.add(Filter());
+    list.add(SizedBox(width: 10.0));
+    if (filter != 0) list.add(Filter1());
+    list.add(SizedBox(width: 10.0));
+    list.add(Checkbox(
+      activeColor: Colors.red,
+      value: checkAll,
+      onChanged: (val)
+      {  checkAll=val;
+         for(String k in map.keys)
+          checkedMap[k]=val;
+         setState(() {
+
+         });
+
+      },
+    ));
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: list,
+    );
+  }
+
   Widget getSearchBar() {
     return TextFormField(
       controller: sController,
@@ -272,18 +377,18 @@ class _markAttendanceState extends State<markAttendance> {
       decoration: InputDecoration(
         suffixIcon: sController.text != ""
             ? IconButton(
-          icon: Icon(
-            Icons.cancel_outlined,
-            color: Colors.green,
-            size: 18.0,
-          ),
-          onPressed: () {
-            setSearchList("");
-            setState(() {
-              sController.text = "";
-            });
-          },
-        )
+                icon: Icon(
+                  Icons.cancel_outlined,
+                  color: getTileColor(defaultAttendance ?? 2),
+                  size: 18.0,
+                ),
+                onPressed: () {
+                  setSearchList("");
+                  setState(() {
+                    sController.text = "";
+                  });
+                },
+              )
             : null,
         labelText: "Search ",
         labelStyle: labelStyle1,
@@ -291,60 +396,80 @@ class _markAttendanceState extends State<markAttendance> {
         hintStyle: hintStyle1,
         focusedBorder: OutlineInputBorder(
           borderSide: BorderSide(
-              color: focusedBorderColor1, width: focusedBorderWidth1),
+              color: focusedBorderColor1,
+              width: focusedBorderWidth1),
         ),
-
-        /* enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: enabledBorderColor, width: enabledBorderWidth1),
-        ),*/
+        enabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(
+              color: enabledBorderColor1,
+              width: enabledBorderWidth1),
+        ),
       ),
     );
   }
 
-  Widget getBottomAppBar()
-  {   return  Container(
-      padding: EdgeInsets.all(20.0),
-      child: Row(
-        children: [
-          Expanded(
-            flex: 3,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                FlatButton(
-                  child: Text(
-                    "  Select all  ",
-                    style: textStyle1,
+
+
+
+
+
+  Widget getBottomAppBar(c) {
+    return Container(
+        color: bottomColor,
+        padding: EdgeInsets.all(20.0),
+        child: Row(
+          children: [
+            Expanded(
+              flex: 3,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  FlatButton(
+                    child: Text("  MARK ATTENDANCE  ", style: textStyle1,),
+                    onPressed: () async {
+                     int pos=0;
+                      for(bool b in checkedMap.values)
+                        { pos++;
+                          if(b)
+                           break;
+                        }
+                      if(pos!=checkedMap.values.length)
+                      getShowDialog();
+
+                      else
+                      { Scaffold.of(c).showSnackBar(SnackBar(
+                        duration: Duration(milliseconds: 1500),
+                        content: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text("Pick Staffs for Marking Attendance",style:snackStyle),
+                          ],
+                        ),
+                        backgroundColor: Colors.red,
+                      ),
+                      );
+
+                      }
+
+                    },
                   ),
-                  onPressed: () {
-                    for (String k in map.keys) {
-                      checkedMap[k] = true;
-                    }
-                    setState(() {});
-                  },
-                ),
-                FlatButton(
-                  child: Text(
-                    "  MARK ATTENDANCE  ",
-                    style: textStyle1,
-                  ),
-                  onPressed: () async {
-                    getShowDialog();
-                  },
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          Expanded(
-              flex: 1,
-              child: Container(
-                child: Text(""),
-              ))
-        ],
-      )); }
+            Expanded(
+                flex: 1,
+                child: Container(
+                  child: Text(""),
+                ))
+          ],
+        ));
+  }
 
   Widget getStatsWidget() {
     return Container(
+
+      key: ValueKey(1),
+      //color: rightColor,
       width: width / 4,
       padding: EdgeInsets.only(
         left: 20.0,
@@ -354,34 +479,53 @@ class _markAttendanceState extends State<markAttendance> {
           Container(
               width: width / 4,
               padding: EdgeInsets.only(
-                  right: 20.0, left: 20.0, top: 5.0, bottom: 5.0),
-              decoration: BoxDecoration(
-                border: Border.all(
+                  right: 10.0, left: 10.0, top: 5.0, bottom: 5.0),
+              /* border: Border.all(
                     color: getTileColor(
                         defaultAttendance != null ? defaultAttendance : 2),
-                    width: width2),
-              ),
+                    width: width2),*/
+              decoration: BoxDecoration(),
+              child: Center(
+                  child: Text(
+                " Statistics",
+                style: TextStyle(fontSize: 25),
+              ))),
+          getDiv(),
+          Container(
+              width: width / 4,
+              padding: EdgeInsets.only(
+                  right: 20.0, left: 20.0, top: 5.0, bottom: 5.0),
+              decoration: BoxDecoration(
+                  /* border: Border.all(
+                    color: getTileColor(
+                        defaultAttendance != null ? defaultAttendance : 2),
+                    width: width2), */
+
+                  ),
               child: Text("Present :  ${getStats()[2]}")),
+          getDiv(),
           Container(
               width: width / 4,
               padding: EdgeInsets.only(
                   right: 10.0, left: 10.0, top: 5.0, bottom: 5.0),
-              decoration: BoxDecoration(
-                border: Border.all(
+              /* border: Border.all(
                     color: getTileColor(
                         defaultAttendance != null ? defaultAttendance : 2),
-                    width: width2),
-              ),
-              child: Text("Absent :  ${getStats()[0]}")),
+                    width: width2),*/
+              decoration: BoxDecoration(),
+              child: Text("  Absent :  ${getStats()[0]}")),
+          getDiv(),
           Container(
               width: width / 4,
               padding: EdgeInsets.only(
                   right: 20.0, left: 20.0, top: 5.0, bottom: 5.0),
               decoration: BoxDecoration(
-                border: Border.all(
+                  /*  border: Border.all(
                     color: getTileColor(defaultAttendance ?? 2), width: width2),
-              ),
+               */
+                  ),
               child: Text("Halfday :  ${getStats()[1]}")),
+          getDiv(),
         ],
       ),
     );
@@ -392,75 +536,105 @@ class _markAttendanceState extends State<markAttendance> {
       context: context,
       builder: (context) => Center(
         child: AlertDialog(
-            backgroundColor: Colors.black,
-            title: Text(
-              'Mark attendance?',
-              style:
-              TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+            backgroundColor: dailogColor,
+            title: Center(
+              child: Text(
+                'Mark Attendance',
+                style: dailogHeadStyle,
+              ),
             ),
             // content: Text('Do you want to exit App ?',style: TextStyle(color: Colors.white70),),
 
             content: Container(
-              height: 200.0,
+              height: 250.0,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+                  getDiv(),
+                  Center(
+                    child: Text(
+                      'Pick Attendance',
+                      style: dailogSubHeadStyle,
+                    ),
+                  ),
                   // getAttendanceDDButton(),
                   attendanceButton(refresh, myPrefs),
-                  OTButton(ref, myPrefs),
-
-                  FlatButton(
-                    onPressed: () async {
-                      for (String k in map.keys) {
-                        if (checkedMap[k] == true) {
-                          Map<String, dynamic>a;
-
-                          if (map[k].containsKey(month)) {
-                            a = map[k][month];
-                            a[date] = "${selectAttendance}${selectOT}";
-                          }
-                          else
-                          { a={
-                            date:"${selectAttendance}${selectOT}"};
-                          }
-                          Map<String,dynamic> a1={month:a};
-
-                          await d.updateStaffData(k, a1);
-                          checkedMap[k] = false;
-                        } else {
-                          Map<String, dynamic> m;
-                          switch (getType(k)) {
-                            case 1:
-                              break;
-                            case 0:
-                              m = map[k][month];
-                              m[date] = "${defaultAttendance}${defaultOT}";
-                              break;
-                            case -1:
-                              m={
-                                date:"${defaultAttendance}${defaultOT}"
-                              };
-                              break;
-                          }
-
-
-
-
-
-                          if(DateTime.now().day==int.parse(date))   //today
-                            { if(getType(k)!=1)
-                              await d.updateStaffData(k, m);}
-
-                        }
-
-                        setState(() {});
-                      }
-
-                      Navigator.pop(context);
-                    },
+                  getDiv(),
+                  Center(
                     child: Text(
-                      'Mark ',
-                      style: TextStyle(color: Colors.green),
+                      'Pick overtime',
+                      style: dailogSubHeadStyle,
+                    ),
+                  ),
+
+                  SizedBox(
+                    height: 20,
+                  ),
+                  Container(
+                    margin:EdgeInsets.only(left:45),
+                      child: OTButton(ref, myPrefs, 1)),
+                  getDiv(),
+                  //  SizedBox(height: 30,),
+
+                  Container(
+                    width: 80,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(primary: Colors.pink),
+                      onPressed: () async {
+                        print("Mark");
+
+
+                            for (String k in map.keys) {
+                            if (checkedMap[k] == true) {
+                              Map<String, dynamic> a;
+
+                              if (map[k].containsKey(month)) {
+                                a =Map.from(map[k][month]) ;
+                                a[date] = "${selectAttendance}${selectOT}";
+
+
+                              } else {
+                                a = {date: "${selectAttendance}${selectOT}"};
+                              }
+                              Map<String, dynamic> a1 = {month: a};
+
+                              await d.updateStaffData(k, a1);
+                              checkedMap[k] = false;
+                            } else {
+
+                              Map<String, dynamic> m;
+                              switch (getType(k)) {
+                                case 1:
+                                  break;
+                                case 0:
+                                  m =Map.from(map[k][month]) ;
+                                  m[date] = "${defaultAttendance}${defaultOT}";
+                                  break;
+                                case -1:
+                                  m = {date: "${defaultAttendance}${defaultOT}"};
+                                  break;
+                              }
+                              m={month:m};  // Updating month
+                              print(k);
+                              print(map.toString());
+                              print("dt:${getType(k)}");
+                              if (DateTime.now().day == int.parse(date)) //today
+                                  {
+                                if (getType(k) != 1) await d.updateStaffData(k, m);
+                              }
+                            }
+
+                            setState(() {});
+                          }
+
+                          Navigator.pop(context);
+
+
+                      },
+                      child: Text(
+                        'Mark ',
+                        style: TextStyle(color: Colors.white),
+                      ),
                     ),
                   ),
                 ],
@@ -470,6 +644,65 @@ class _markAttendanceState extends State<markAttendance> {
     );
   }
 
+  Widget Filter() {
+    return DropdownButton<int>(
+      value: filter,
+      icon: const Icon(Icons.filter_alt_outlined,color: Colors.pink,),
+      iconSize: 24,
+      elevation: 16,
+      style: TextStyle(color: Colors.blue),
+      underline: Container(
+        height: 2,
+        color: Colors.black,
+      ),
+      onChanged: (int newValue) async {
+        setState(() {
+          filter = newValue;
+        });
+      },
+      items: <int>[0, 1, 2].map<DropdownMenuItem<int>>((int value) {
+        return DropdownMenuItem<int>(
+          value: value,
+          child:
+              Text(getit(value), style: TextStyle(color: filterTextColor)),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget Filter1() {
+    return filter == 1
+        ? attendanceButton(refresh2, myPrefs)
+        : OTButton(ref2, myPrefs, 1);
+  }
+  Widget settingsStack()
+  {
+    return  Container(
+      margin: EdgeInsets.only(left: 30),
+      padding: EdgeInsets.only(top: 100.0,bottom: 100),
+      key:ValueKey(2),
+      color: Colors.white,
+      //width: width / 5,
+      child: Column(
+        //crossAxisAlignment: CrossAxisAlignment.center,
+        children: [ Text("Default Values",textAlign: TextAlign.left,style: settingsStyle,),
+         getDiv(),
+          Text("Attendance",style: settingsStyle1,),
+          getDiv(),
+          attendanceButton(refresh1, myPrefs, 1),
+          SizedBox(height: 15,),
+          Text("OverTime",style: settingsStyle1,),
+          getDiv(),
+          Center(
+            child: Container(
+            padding: EdgeInsets.only(left:60),
+                child: OTButton(ref1, myPrefs, 1)),
+          ),
+          getDiv(),],
+      ),
+
+
+    );
 
 
 
@@ -477,9 +710,9 @@ class _markAttendanceState extends State<markAttendance> {
 
 
 
+  }
 
-
-   ///  Utility Functions
+  ///  Utility Functions
 
   Future<Null> _selectDate(BuildContext context) async {
     print('selectDate');
@@ -491,11 +724,11 @@ class _markAttendanceState extends State<markAttendance> {
         firstDate: DateTime(2015),
         lastDate: DateTime(2101));
     if (picked != null) {
-        setState(() {
-          now=picked;
-          month = "${getaddedzero(picked.month)}-${picked.year}";
-          date = picked.day.toString();
-        });
+      setState(() {
+        now = picked;
+        month = "${getaddedzero(picked.month)}-${picked.year}";
+        date = picked.day.toString();
+      });
     }
   }
 
@@ -509,10 +742,15 @@ class _markAttendanceState extends State<markAttendance> {
     }
   }
 
-
-
-
-
+  Widget getDiv() {
+    return Divider(
+      height: 20,
+      color: Colors.black,
+      thickness: 1,
+      endIndent: 20,
+      indent: 20,
+    );
+  }
 
   void setSearchList(String val) {
     searchList = List<String>();
@@ -524,55 +762,54 @@ class _markAttendanceState extends State<markAttendance> {
     }
   }
 
-
   String getAttendance(String k) {
-    switch(getType(k))
-    {case 1:
-      return map[k][month][date].substring(0, 1);
-      case 0:
-        return DateTime.now().day==int.parse(date)?defaultAttendance.toString():"5";
-      case -1:
-        return DateTime.now().day==int.parse(date)?defaultAttendance.toString():"5";
-    }
-    /* if (map[k].containsKey(month)) {
-      if (map[k][month].containsKey(date))
+    switch (getType(k)) {
+      case 1:
         return map[k][month][date].substring(0, 1);
-      else {
-        return DateTime.now().day==int.parse(date)?defaultAttendance.toString():"5";
-      }
-    } else {
-      return  DateTime.now().day==int.parse(date)?defaultAttendance.toString():"5";
-      //return default;
+      case 0:
+   /*   return DateTime.now().day == int.parse(date)
+            ? defaultAttendance.toString()
+            : "5";*/
+        return "5";
 
-    } */
+      case -1:
+        return "5";
+    }
 
   }
 
   int getType(String k) {
+
     if (map[k].containsKey(month)) {
       if (map[k][month].containsKey(date))
-        return 1;
-      else {
+        {
+          return 1;
+
+
+        }
+
+      else
         return 0;
-      }
+
     } else {
-      return  -1;
+      return -1;
       //return default;
 
     }
   }
 
-
   String getOT(String k) {
-    switch(getType(k))
-    {case 1:
-      return map[k][month][date].substring(1);
+    switch (getType(k)) {
+      case 1:
+        return map[k][month][date].substring(1);
       case 0:
-        return DateTime.now().day==int.parse(date)?defaultOT.toString():"NA";
+      /*return DateTime.now().day == int.parse(date)
+            ? defaultOT.toString()
+            : "NA"; */
+        return "NA";
+
       case -1:
-        return DateTime.now().day==int.parse(date)?defaultOT.toString():"NA";
-
-
+        return "NA";
     }
     /*  if (map[k].containsKey(month)) {
       if (map[k][month].containsKey(date))
@@ -583,13 +820,12 @@ class _markAttendanceState extends State<markAttendance> {
     } else {
       return DateTime.now().day==int.parse(date)?defaultOT.toString():"NA";
     }*/
-
   }
+
   List<int> getStats() {
     List<int> x = [0, 0, 0];
     for (String k in map.keys) {
-      if(int.parse(getAttendance(k))!=5)
-      x[int.parse(getAttendance(k))]++;
+      if (int.parse(getAttendance(k)) != 5) x[int.parse(getAttendance(k))]++;
     }
 
     return x;
@@ -597,7 +833,7 @@ class _markAttendanceState extends State<markAttendance> {
 
 
 
-    /// Refresh Functions
+  /// Refresh Functions
   refresh([int x]) {
     setState(() {
       selectAttendance = x;
@@ -621,8 +857,36 @@ class _markAttendanceState extends State<markAttendance> {
       defaultOT = x;
     });
   }
+
+  ref2([double x]) {
+    setState(() {
+      filterAttendance = null;
+      filterOT = x;
+    });
+  }
+
+  refresh2([int x]) {
+    setState(() {
+      filterOT = null;
+      filterAttendance = x;
+    });
+  }
 }
+
+
+
 
 /*
 
              */
+
+
+
+/* */
+
+/* */
+
+/* */
+
+/* */
+

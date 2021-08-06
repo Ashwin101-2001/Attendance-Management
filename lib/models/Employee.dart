@@ -7,11 +7,12 @@ class Employee {
   String _allowance;
   String _overTime;
   String _advance;
+  String _gender;
   //bool _checked;
 
 
   Employee(this._name, this._aadhar, this._DOJ, this._phone, this._allowance,
-   this._wage,this._overTime,this._advance);
+   this._wage,this._overTime,this._advance,this._gender);
 
 
 
@@ -19,6 +20,7 @@ class Employee {
   String get name => _name;
 
   String get aadhar => _aadhar;
+  String get gender => _gender;
 
   String get DOJ => _DOJ;
 
@@ -41,6 +43,11 @@ class Employee {
   set aadhar(String d) {
     this._aadhar = d;
   }
+
+  set gender(String d) {
+    this._gender = d;
+  }
+
 
   set phone(String d) {
     this._phone = d;
@@ -78,6 +85,9 @@ class Employee {
     map['overTime'] = _overTime;
     map['advance'] = _advance;
 
+    map['gender'] = _gender;
+
+
 
 
     return map;
@@ -96,5 +106,7 @@ class Employee {
     this._advance = map['advance'];
    // this._checked=false;
 
+
+    this._gender = map['gender'];
   }
 }

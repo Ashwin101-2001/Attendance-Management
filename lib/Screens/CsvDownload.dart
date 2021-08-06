@@ -11,6 +11,7 @@ import 'package:varnam_attendance/Screens/MarkAttendance.dart';
 import 'package:varnam_attendance/models/Employee.dart';
 import 'package:varnam_attendance/utilities/functions.dart';
 import 'package:varnam_attendance/utilities/screens_size.dart';
+import 'package:http/http.dart' as http;
 
 class csvDownloader extends StatefulWidget {
   @override
@@ -56,13 +57,18 @@ class _csvDownloaderState extends State<csvDownloader> {
     width = Responsive.width(100, context);
     height = Responsive.width(100, context);
     return Scaffold(
+      //backgroundColor: Colors.black,
       appBar: AppBar(
         title:Text('Export CSV'),
       ),
       body:SingleChildScrollView(
         child: Center(
           child: Container(
-            margin: EdgeInsets.only(top:width/20),
+            margin:EdgeInsets.only(top: width/20,bottom:width/20),
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.pink,width: 2.0)
+            ),
+
             width: width/2,
             height: height*3/4,
             child: Column(
@@ -124,13 +130,14 @@ class _csvDownloaderState extends State<csvDownloader> {
                   ),
                   calendarController: _controller,
                 ),
+                SizedBox(height: 50,),
                 Center(
-                  child: TextButton(
+                  child: ElevatedButton(
                     child:  RichText(
                       text: TextSpan(
                         children: [
                           TextSpan(
-                            text:  "Download Excel file",
+                            text:  " Excel file",
                             style: downloadStyle
                           ),
                           WidgetSpan(
@@ -141,7 +148,8 @@ class _csvDownloaderState extends State<csvDownloader> {
                       ),
                     ),
                     onPressed: () async
-                    { List<List<dynamic>> list1=List<List<dynamic>>();
+                    {
+                      /*  List<List<dynamic>> list1=List<List<dynamic>>();
                        list1.add(d1);
                       for (Employee e in employeeList) {
                         list1.add(getRow(e.name));
@@ -149,8 +157,10 @@ class _csvDownloaderState extends State<csvDownloader> {
                     String csv = const ListToCsvConverter().convert(list1);
                     print(csv);
                     final content = base64Encode(csv.codeUnits);
-                    final url = 'data:application/vnd.ms-excel;base64,$content';
-                    await launch(url);
+                    final url = 'data:application/csv;base64,$content';
+                    await launch(url);*/
+
+
 
                     },
                   ),
@@ -174,10 +184,10 @@ class _csvDownloaderState extends State<csvDownloader> {
      double wages=getWages(attendanceDays,e.wage) ;
      double OT=OTHours*double.parse(e.overTime);
      double allowance=getAllowance(e.allowance,attendanceDays);
-      double Total=wages+OT+allowance;
+      double Total= double.parse((wages + OT + allowance).toStringAsFixed(0));
      double PF= getPf(wages);
      double ESI=getEsi(Total);
-     double netTotal=Total-PF-ESI;
+     double netTotal=double.parse((Total-PF-ESI).toStringAsFixed(0));
      int Rounded=roundToTens(netTotal.round());
 
 
@@ -236,8 +246,3 @@ class _csvDownloaderState extends State<csvDownloader> {
    "Cash paid"
 
  ];
-Employee getEmp(String name, List<Employee> l) {
-  for (Employee e in l) {
-    if (e.name == name) return e;
-  }
-}

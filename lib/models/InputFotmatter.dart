@@ -1,8 +1,9 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class CustomInputFormatter extends TextInputFormatter {
+class SpaceFormatter extends TextInputFormatter {
   int x;
-  CustomInputFormatter(this.x);
+  SpaceFormatter(this.x);
   @override
   TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
     var text = newValue.text;
@@ -30,7 +31,7 @@ class CustomInputFormatter extends TextInputFormatter {
 }
 
 
-class CustomInputFormatter1 extends TextInputFormatter {
+class RsFormatter extends TextInputFormatter {
   int x;
 
   @override
@@ -45,6 +46,33 @@ class CustomInputFormatter1 extends TextInputFormatter {
     return newValue.copyWith(
         text: "Rs "+text,
         selection: new TextSelection.collapsed(offset: text.length+3)
+    );
+  }
+}
+
+
+class DecimalNumberFormatter extends TextInputFormatter {
+
+
+  @override
+  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+    var text = newValue.text;
+    var text1="";
+
+    if (newValue.selection.baseOffset == 0) {
+      return newValue;
+    }
+
+     int i=0;
+     while(i<text.length)
+       { // if(!((text[i].contains(new RegExp(r'[A-Z]'))||text[i].contains(new RegExp(r'[a-z]')))))
+         if(text[i].contains(new RegExp(r'[0-9]'))||text[i]=='.')
+          text1+=text[i];
+          i++;
+       }
+    return newValue.copyWith(
+        text: text1,
+        selection: new TextSelection.collapsed(offset: text1.length)
     );
   }
 }
