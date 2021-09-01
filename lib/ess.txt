@@ -1,0 +1,14 @@
+d:
+cd Ashwin
+cd varnam_attendance
+
+
+flutter clean
+flutter pub get
+flutter build web
+firebase init
+build/web
+
+
+firebase deploy --only hosting
+print();

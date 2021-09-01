@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:varnam_attendance/Constants/CsvDownloadConstants.dart';
+import 'package:varnam_attendance/Constants/Overall%20constants.dart';
 import 'package:varnam_attendance/Firebase/EmployeeList.dart';
 import 'package:varnam_attendance/Firebase/attendanceDatabase.dart';
 import 'package:varnam_attendance/Screens/MarkAttendance.dart';
@@ -26,6 +27,7 @@ class _csvDownloaderState extends State<csvDownloader> {
   double height;
   bool loading=true;
   Map<String, Map<String, dynamic>> attendanceMap;
+  Map<String, dynamic> map;
   List<Employee> employeeList;
   DatabaseListService listService=DatabaseListService();
   DatabaseAttendanceService attendanceService=DatabaseAttendanceService();
@@ -45,8 +47,10 @@ class _csvDownloaderState extends State<csvDownloader> {
 
   void init() async{
     attendanceMap= await attendanceService.getAttendanceCollection();
+    map=attendanceMap[general];
+    attendanceMap.remove(general);
     employeeList=await listService.getEmployeeList();
-    print(attendanceMap.toString());
+    ///print(attendanceMap.toString());
 
 
 
@@ -64,13 +68,14 @@ class _csvDownloaderState extends State<csvDownloader> {
       body:SingleChildScrollView(
         child: Center(
           child: Container(
-            margin:EdgeInsets.only(top: width/20,bottom:width/20),
+            margin:isWeb()?EdgeInsets.only(top: width/20,bottom:width/20):
+            EdgeInsets.only(top: 20,bottom:20,left: 20,right: 20),
             decoration: BoxDecoration(
               border: Border.all(color: Colors.pink,width: 2.0)
             ),
+             width: isWeb()?width/2:width,
+              height: isWeb()?height*3/4:height,
 
-            width: width/2,
-            height: height*3/4,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
@@ -148,17 +153,19 @@ class _csvDownloaderState extends State<csvDownloader> {
                       ),
                     ),
                     onPressed: () async
-                    {
-                      /*  List<List<dynamic>> list1=List<List<dynamic>>();
+                    {   print("ASYNC");
+                    List<List<dynamic>> list1=List<List<dynamic>>();
                        list1.add(d1);
                       for (Employee e in employeeList) {
+                        /// print("${getRow(e.name).toString()}");
                         list1.add(getRow(e.name));
                       }
+                    print("ak");
                     String csv = const ListToCsvConverter().convert(list1);
                     print(csv);
                     final content = base64Encode(csv.codeUnits);
                     final url = 'data:application/csv;base64,$content';
-                    await launch(url);*/
+                    await launch(url);
 
 
 
@@ -178,15 +185,18 @@ class _csvDownloaderState extends State<csvDownloader> {
   {  List<dynamic> list=List<dynamic>();
      month = "${getaddedzero(date1.month)}-${date1.year}";
     ///Assigning values
+        String s=map[month][PL];
+        int count= s.substring(0,s.length-1).split(",").length;
+
     Employee e=getEmp(name,employeeList );
      double attendanceDays =getAttendance(name,attendanceMap,month);
      double OTHours=getOT(name,attendanceMap,month);
      double wages=getWages(attendanceDays,e.wage) ;
      double OT=OTHours*double.parse(e.overTime);
-     double allowance=getAllowance(e.allowance,attendanceDays);
+     double allowance=getAllowance(e.allowance,attendanceDays,count);
       double Total= double.parse((wages + OT + allowance).toStringAsFixed(0));
-     double PF= getPf(wages);
-     double ESI=getEsi(Total);
+      double PF = getPf(wages,e.isPF);
+     double ESI=getEsi(Total,PF,e.isESI);
      double netTotal=double.parse((Total-PF-ESI).toStringAsFixed(0));
      int Rounded=roundToTens(netTotal.round());
 

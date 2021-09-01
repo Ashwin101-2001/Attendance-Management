@@ -23,6 +23,9 @@ class MyApp extends StatelessWidget {
       //home:markAttendance(),
       //home:Payments(),
       home:Wrapper(),
+      routes: {
+        'view':(context) => viewEmployee(),
+      },
     );
   }
 }

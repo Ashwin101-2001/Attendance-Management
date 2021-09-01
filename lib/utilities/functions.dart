@@ -1,7 +1,9 @@
 import 'dart:ui';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:varnam_attendance/Constants/Overall%20constants.dart';
 import 'package:varnam_attendance/models/Employee.dart';
 import 'package:varnam_attendance/models/InputFotmatter.dart';
 
@@ -19,7 +21,7 @@ String getHints(int type) {
       return "Enter wage per day";
       break;
     case 5:
-      return "Enter OverTime per hour";
+      return "Enter Overtime per hour";
     case 6:
       return "Enter employee allowance";
     case 7:
@@ -41,9 +43,9 @@ String getLabel(int type) {
       return "Wage *";
       break;
     case 5:
-      return "OverTime per hour *";
+      return "Overtime per hour *";
     case 6:
-      return " Employee allowance *";
+      return " Employee allowance ";
     case 7:
       return "Advance *";
   }
@@ -71,8 +73,9 @@ List<TextInputFormatter> getFormatters(int type) {
     case 4:
     case 5:
     case 6:
+
     case 7:
-      y.add(FilteringTextInputFormatter.digitsOnly);
+      y.add(DecimalNumberFormatter());
       y.add(RsFormatter());
       return y;
   }
@@ -108,7 +111,7 @@ String getValidation(int type, String val) {
       break;
   }
 
-  return (val != "" ? null : "Enter a valid name");
+  return null;
 }
 
 String getBoolValue(bool x) {
@@ -132,18 +135,26 @@ double getWages(hours, wage) {
   return s == 1 ? hours * w : w;
 }
 
-double getAllowance(allowance, double days) {
+double getAllowance(allowance,days,paidLeaves) {
   int s = int.parse(allowance.substring(0, 1));
   double all=double.parse(allowance.substring(1));
-  return s == 1 ? all * days.floor() : all;
+  return s == 1 ? all * (days.floor()-paidLeaves) : all;
 }
 
-double getPf(wages) {
+double getPf(wages,bool) {
+  if(!bool)
+    return 0;
+
   double num1 = double.parse(( wages * 0.096).toStringAsFixed(2));
+  if(num1>1800)
+    num1=1800;
   return num1;
 }
 
-double getEsi(total) {
+double getEsi(total,PF,bool) {
+  if(!bool||PF>1800)
+    return 0;
+
   double num1 = double.parse(( total * 0.0175).toStringAsFixed(2));
   return num1;
 }
@@ -157,10 +168,12 @@ double getAttendance(String name, attendanceMap,month) {
   else if(attendanceMap[name][month].values==null)
     return count;
   else
-    {  for (String s in attendanceMap[name][month].values) {
+    {  for (var s in attendanceMap[name][month].values) {
+      try{   count += int.parse(s.substring(0, 1));}///-1-1 no problem
+      catch(a)
+      { print("a");}
 
-      print(" Att:::: name: $name $s ${int.parse(s.substring(0, 1))}");
-      count += int.parse(s.substring(0, 1));
+
     }
 
     return count / 2; }
@@ -176,8 +189,11 @@ double getOT(name, attendanceMap,month) {
   else if(attendanceMap[name][month].values==null)
     return count;
   else
-    { for (String s in attendanceMap[name][month].values) {
-      count += double.parse(s.substring(1));
+    { for (var s in attendanceMap[name][month].values) {
+      try{  count += double.parse(s.substring(1));}
+      catch(a)
+       { print("a");}
+
     }
 
     return count;}
@@ -187,13 +203,13 @@ double getOT(name, attendanceMap,month) {
 Color getTileColor(int attendance) {
   switch (attendance) {
     case 0:
-      return Colors.red[700];
+      return Red;
 
     case 1:
-      return Colors.orange[600];
+      return Orange;
 
     case 2:
-      return Colors.green[600];
+      return Green;
 
     default:
       return Colors.white;
@@ -251,4 +267,27 @@ Employee getEmp(String name, List<Employee> l) {
   for (Employee e in l) {
     if (e.name == name) return e;
   }
+}
+
+
+
+int getInt(list,name)
+{  int i=0;
+ while(i<list.length)
+   {  if(list[i].name==name)
+       return i;
+      i++;
+   }
+
+
+}
+
+bool isWeb()
+{ if((kIsWeb && (defaultTargetPlatform == TargetPlatform.iOS || defaultTargetPlatform == TargetPlatform.android))==true)
+  { return false;}
+
+  return true;
+
+
+
 }

@@ -29,14 +29,29 @@ class DatabaseListService {
   }
 
   Future<List<Employee>> getEmployeeList() async {
-    print("a");
+    // print("a");
     QuerySnapshot x=await Employees.get();
+    ///  CC:Empty what will happen ?
     List<Employee> list = List<Employee>();
-    print("a");
+    // print("a");
 
       for (DocumentSnapshot a in x.docs) {
         list.add(Employee.fromMapObject(a.data()));
       }
+
+    return list;
+  }
+
+
+  Future<Map<String,Employee>> getEmployeeMap() async {
+    print("a");
+    QuerySnapshot x=await Employees.get();
+    Map<String,Employee> list = Map<String,Employee>();
+    print("a");
+
+    for (DocumentSnapshot a in x.docs) {
+      list[a.id]=(Employee.fromMapObject(a.data()));
+    }
 
     return list;
   }

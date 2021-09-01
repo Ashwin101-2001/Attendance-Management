@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:custom_switch/custom_switch.dart';
 import 'package:draggable_scrollbar/draggable_scrollbar.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +11,7 @@ import 'package:varnam_attendance/Firebase/attendanceDatabase.dart';
 import 'package:varnam_attendance/models/Employee.dart';
 import 'package:intl/intl.dart';
 import 'package:varnam_attendance/models/InputFotmatter.dart';
+import 'package:varnam_attendance/utilities/Loading.dart';
 import 'package:varnam_attendance/utilities/functions.dart';
 
 class addEmployee extends StatefulWidget {
@@ -40,7 +42,11 @@ class _addEmployeeState extends State<addEmployee> {
   bool per1;
   bool per2;
   String DOJ;
-  String t="Save";
+  bool PF=false;
+  bool ESI=false;
+    String string="Save";
+    String t;
+    String k;
    Color  c=Colors.pink;
    List<bool> selections=[false,false];
 
@@ -57,11 +63,16 @@ class _addEmployeeState extends State<addEmployee> {
     loading = true;
     per1 = false;
     per2 = false;
+    if(name!=null)
+      string="Edit";
+       t=string;
+       if (string=="Save")
+        k="Saved";
+       else
+         k="Edited";
 
     init();
-    setState(() {
-      loading = false;
-    });
+
   }
 
   void init() async {
@@ -75,14 +86,24 @@ class _addEmployeeState extends State<addEmployee> {
          aadharController.text = e.aadhar;
          String s=e.wage;
          per1=s[1]=='2'?true:false;
-        wageController.text = s.substring(1);
-        overTimeController.text = e.overTime;
+        wageController.text = "Rs "+s.substring(1);
+        overTimeController.text = "Rs "+e.overTime;
+         gender=e.gender;
+         PF=e.isPF??false;
+         ESI=e.isESI??false;
+         if(gender=="Male")
+           selections=[true,false];
+         else
+           selections=[false,true];
           s=e.allowance;
           per2=s[1]=='2'?true:false;
-        allowanceController.text = s.substring(1);
-        advanceController.text=e.advance;
+        allowanceController.text = "Rs "+s.substring(1);
+        advanceController.text="Rs "+e.advance;
         DOJ=e.DOJ;
       }
+    setState(() {
+      loading = false;
+    });
   }
 
   @override
@@ -116,15 +137,15 @@ class _addEmployeeState extends State<addEmployee> {
                             borderColor: Colors.grey[600],
                             borderWidth: 2.0,
                             //fillColor: Colors.white,
-                            color: Colors.blue,
+                            color: Colors.blue[800],
                             children: [
                              Container(
                                width:toggleWidth,
-                               child: Center(child: Text("Male")),
+                               child: Center(child: Text("Male",style:genderStyle)),
                              ),
                               Container(
                                 width:toggleWidth,
-                                child: Center(child: Text("Female")),
+                                child: Center(child: Text("Female",style:genderStyle)),
                               ),
 
                             ],
@@ -145,6 +166,7 @@ class _addEmployeeState extends State<addEmployee> {
                             },
                             isSelected: selections,
                           ),
+
                           SizedBox(height: 10.0,),
                           getName(2, phoneController),
                           SizedBox(height: 10.0,),
@@ -157,6 +179,58 @@ class _addEmployeeState extends State<addEmployee> {
                           getOTandWage(6, allowanceController),
                           SizedBox(height: 10.0,),
                           getName(7, advanceController),
+                          SizedBox(height: 20.0,),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                padding: EdgeInsets.all(5),
+                                decoration: BoxDecoration(
+                                    border: Border.all(color: Colors.pink,width:switchWidth)
+                                ),
+
+                                child: Row(
+                                  children: [
+                                    Text("PF :   ",style:pesiStyle),
+                                    CustomSwitch(
+                                      activeColor: activeColor,
+                                      value: PF,
+                                      onChanged: (value) {
+                                        //print("VALUE : $value");
+                                        setState(() {
+                                          PF = value;
+                                        });
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(width: 20,),
+                              Container(
+                                padding: EdgeInsets.all(5),
+                                decoration: BoxDecoration(
+                                    border: Border.all(color: Colors.pink,width:switchWidth)
+                                ),
+
+                                child: Row(
+                                  children: [
+                                    Text("ESI :   ",style:pesiStyle),
+                                    CustomSwitch(
+                                      activeColor: activeColor,
+                                      value: ESI,
+                                      onChanged: (value) {
+                                        //print("VALUE : $value");
+                                        setState(() {
+                                          ESI = value;
+                                        });
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              )
+
+                            ],
+                          ),
                           SizedBox(height: 20.0,),
                           Center(
                             child: ElevatedButton(
@@ -192,11 +266,12 @@ class _addEmployeeState extends State<addEmployee> {
 
                                  }
                                else
-                                 { if (_formKey.currentState.validate()&&t!="Saved !!") {
+                                 {
+                                   if (_formKey.currentState.validate()&&t!="$k !!") {
                                      print(nameController.text);
                                      await Sync();
                                      setState(() {
-                                       t="Saved !!";
+                                       t="$k !!";
                                        c=Colors.green;
                                      });
 
@@ -235,29 +310,34 @@ class _addEmployeeState extends State<addEmployee> {
 
 
     else
-      return Container(
-        color: Colors.red,
-      );
+      return Loader();
   }
 
   Future Sync() async {
+    String s;
+    try{s=getBoolValue(per2)+allowanceController.text.substring(3);}
+    catch(e)
+    {s="0.0";}
+
     Employee e = new Employee(nameController.text,
         aadharController.text,
         DOJ==""?"NA":DOJ,
         phoneController.text,
-       getBoolValue(per2)+allowanceController.text.substring(3),
+         s,
        getBoolValue(per1)+wageController.text.substring(3),
        overTimeController.text.substring(3),
        advanceController.text.substring(3),
-        gender);
+        gender,
+        PF,ESI);
 
 
+    if (name == null) {
+      await DatabaseListService().insertUserData(e.name, e.map);
+      await DatabaseAttendanceService().setStaffData(e.name, {});
+    } else {
+      await DatabaseListService().updateStaffData(e.name, e.map);
 
-
-
-    await DatabaseListService().insertUserData(e.name, e.map);
-    await DatabaseAttendanceService().setStaffData(e.name, {});
-
+    }
   }
 
   Widget getOTandWage(
@@ -298,7 +378,7 @@ class _addEmployeeState extends State<addEmployee> {
       controller: controller,
       style: textStyle,
       keyboardType:
-          (type != 1) ? TextInputType.numberWithOptions() : TextInputType.text,
+          (type != 1) ? TextInputType.numberWithOptions(decimal: true) : TextInputType.text,
       inputFormatters:
           (type != 1) ?getFormatters(type): null,
       validator: (val) {
@@ -310,7 +390,7 @@ class _addEmployeeState extends State<addEmployee> {
       });},
       decoration: InputDecoration(
         suffixIcon:  controller.text!=""?IconButton(
-          icon: Icon(Icons.cancel_outlined,color: Colors.green,size: 18.0,),
+          icon: Icon(Icons.cancel_outlined,color: Colors.blue[800],size: 18.0,),
         onPressed: () {
           setState(() {
           controller.text = " ";

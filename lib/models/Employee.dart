@@ -8,11 +8,13 @@ class Employee {
   String _overTime;
   String _advance;
   String _gender;
+  bool _isPF;
+  bool _isESI;
   //bool _checked;
 
 
   Employee(this._name, this._aadhar, this._DOJ, this._phone, this._allowance,
-   this._wage,this._overTime,this._advance,this._gender);
+   this._wage,this._overTime,this._advance,this._gender,this._isPF,this._isESI);
 
 
 
@@ -21,6 +23,7 @@ class Employee {
 
   String get aadhar => _aadhar;
   String get gender => _gender;
+  bool get isESI => _isESI;
 
   String get DOJ => _DOJ;
 
@@ -35,6 +38,7 @@ class Employee {
  // bool get checked => _checked;
 
   String get wage => _wage;
+  bool get isPF => _isPF;
 
   set name(String d) {
     this._name = d;
@@ -46,6 +50,9 @@ class Employee {
 
   set gender(String d) {
     this._gender = d;
+  }
+  set isESI(bool d) {
+    this._isESI = d;
   }
 
 
@@ -66,9 +73,14 @@ class Employee {
   set wage(String x) {
     this._wage = x;
   }
+
+  set isPF(bool x) {
+    this._isPF = x;
+  }
   set advance(String x) {
     this._advance = x;
   }
+
 
   //set checked(bool x) {this._checked = x;}
 
@@ -86,6 +98,8 @@ class Employee {
     map['advance'] = _advance;
 
     map['gender'] = _gender;
+    map['isPF'] = _isPF;
+    map['isESI'] = _isESI;
 
 
 
@@ -108,5 +122,7 @@ class Employee {
 
 
     this._gender = map['gender'];
+    this._isPF = map['isPF'];
+    this._isESI = map['isESI'];
   }
 }
