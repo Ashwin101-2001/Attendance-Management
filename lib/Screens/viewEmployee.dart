@@ -52,8 +52,8 @@ class _viewEmployeeState extends State<viewEmployee> {
   void init() async {
     await Firebase.initializeApp();
     databaseListService=DatabaseListService();
-    databaseAttendanceService=DatabaseAttendanceService();
     eList = await databaseListService.getEmployeeList();
+    databaseAttendanceService=DatabaseAttendanceService();
     eSearchList = eList;
     setState(() {
       loading = false;
@@ -478,11 +478,16 @@ class _viewEmployeeState extends State<viewEmployee> {
     );
   }
   String getName(name)
-  {  List<String> s= name.split(" ");
-   int i=0;
+  {  /// print(name);
+    List<String> s= name.split(" ");
+     /// print(s.toString());
+    int i=0;
      name="";
     while(i<s.length)
-      { name+= s[i][0].toUpperCase()+s[i].substring(1).toLowerCase();
+      {  if(s[i]!="")
+         {name+= s[i][0].toUpperCase()+s[i].substring(1).toLowerCase()+" ";
+
+         }
         i++;
       }
       return name;

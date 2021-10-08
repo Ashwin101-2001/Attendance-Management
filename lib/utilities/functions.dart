@@ -151,52 +151,70 @@ double getPf(wages,bool) {
   return num1;
 }
 
-double getEsi(total,PF,bool) {
+double getEsi(wages,PF,bool) {
   if(!bool||PF>1800)
     return 0;
 
-  double num1 = double.parse(( total * 0.0175).toStringAsFixed(2));
+  double num1 = double.parse(( wages * 0.0075).toStringAsFixed(2));
   return num1;
 }
 
 double getAttendance(String name, attendanceMap,month) {
 
   double count = 0.0;
-  print("map: ${attendanceMap[name][month].toString()}");
-  if(attendanceMap[name][month]==null)
+  //print("map: ${attendanceMap[name][month].toString()}");
+  Map<String,dynamic> map1=Map.from(attendanceMap[name][month]);
+     ///  map1.remove("ADVANCE");
+     double sh=0.0;
+     if( map1.containsKey("ADVANCE"))
+       { try{ sh=double.parse(attendanceMap[name][month]["ADVANCE"].substring(0,1));}
+       catch(e)
+       {}}
+
+
+  if(map1==null)
     return count;
-  else if(attendanceMap[name][month].values==null)
+  else if(map1.values==null)
     return count;
   else
-    {  for (var s in attendanceMap[name][month].values) {
+    {  for (var s in map1.values) {
       try{   count += int.parse(s.substring(0, 1));}///-1-1 no problem
       catch(a)
-      { print("a");}
+      { ///print("a");
+        }
 
 
     }
 
-    return count / 2; }
+    return (count -sh)/ 2; }
 //0,1,2
 }
 
 double getOT(name, attendanceMap,month) {
   double count = 0.0;
 
+  Map<String,dynamic> map1=attendanceMap[name][month];
+  double sh=0.0;
+  if( map1.containsKey("ADVANCE"))
+  { try{ sh=double.parse(map1["ADVANCE"].substring(1));}
+  catch(e)
+  {}}
 
-  if(attendanceMap[name][month]==null)
+
+  if(map1==null)
     return count;
-  else if(attendanceMap[name][month].values==null)
+  else if(map1.values==null)
     return count;
   else
-    { for (var s in attendanceMap[name][month].values) {
+    { for (var s in map1.values) {
       try{  count += double.parse(s.substring(1));}
       catch(a)
-       { print("a");}
+       { /// print("a");
+         }
 
     }
 
-    return count;}
+    return count-sh;}
 
 }
 
@@ -259,6 +277,8 @@ String getit(type) {
 
     case 2:
       return "OverTime";
+    case 3:
+      return "Gender";
   }
 }
 

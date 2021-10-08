@@ -59,7 +59,7 @@ class _mobilePaymentState extends State<mobilePayment> {
 
     double PF = getPf(wages,e.isPF);
 
-    double ESI=getEsi(Total,PF,e.isESI);
+    double ESI=getEsi(wages,PF,e.isESI);
 
     double netTotal = (Total - PF - ESI).floorToDouble();
     int Rounded = roundToTens(netTotal.round());

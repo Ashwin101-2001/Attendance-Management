@@ -35,6 +35,9 @@ class _addEmployeeState extends State<addEmployee> {
   TextEditingController overTimeController = new TextEditingController();
   TextEditingController allowanceController = new TextEditingController();
   TextEditingController advanceController = new TextEditingController();
+  ScrollController scrollController= ScrollController();
+  final _formKey = GlobalKey<FormState>();
+
   String name;
   String gender;
   int allowance;
@@ -52,14 +55,13 @@ class _addEmployeeState extends State<addEmployee> {
 
   // List<String> labels
 
-  final _formKey = GlobalKey<FormState>();
+
   bool loading;
-  ScrollController scrollController= ScrollController();
+
   @override
   void initState() {
     print("add init");
     super.initState();
-    //DOJ=  DateFormat.yMMMd().format(DateTime.now());
     loading = true;
     per1 = false;
     per2 = false;
@@ -76,7 +78,7 @@ class _addEmployeeState extends State<addEmployee> {
   }
 
   void init() async {
-    await Firebase.initializeApp();
+    // await Firebase.initializeApp();
     if(name!=null)
       { DocumentReference d=DatabaseListService().getDoc(name);
            DocumentSnapshot k =await d.get();
@@ -85,7 +87,7 @@ class _addEmployeeState extends State<addEmployee> {
          phoneController.text = e.phone;
          aadharController.text = e.aadhar;
          String s=e.wage;
-         per1=s[1]=='2'?true:false;
+         per1=s[0]=='2'?true:false;
         wageController.text = "Rs "+s.substring(1);
         overTimeController.text = "Rs "+e.overTime;
          gender=e.gender;
@@ -96,7 +98,9 @@ class _addEmployeeState extends State<addEmployee> {
          else
            selections=[false,true];
           s=e.allowance;
-          per2=s[1]=='2'?true:false;
+          print("allowance "+ s[0]);
+          per2=s[0]=='2'?true:false;
+          print("init: $per1 ::: $per2");
         allowanceController.text = "Rs "+s.substring(1);
         advanceController.text="Rs "+e.advance;
         DOJ=e.DOJ;
@@ -314,6 +318,7 @@ class _addEmployeeState extends State<addEmployee> {
   }
 
   Future Sync() async {
+    print("sync: $per1 ::: $per2");
     String s;
     try{s=getBoolValue(per2)+allowanceController.text.substring(3);}
     catch(e)
@@ -346,22 +351,29 @@ class _addEmployeeState extends State<addEmployee> {
   ) {
     return Row(
       children: [
-        Expanded(flex: 6, child: getName(type, t)),
+        Expanded(flex: 12, child: getName(type, t)),
         Expanded(flex:1,
         child: Container(),),
         Expanded(
-          flex: 2,
+          flex: 4,
           child: ElevatedButton(
             style:  b,
             onPressed: () {
               if (type == 4)
+                {  print("per1: ${!per1}");
                 setState(() {
                   per1 = !per1;
+
                 });
+                }
+
               if (type == 6)
+                {print("per2: ${!per2}");
                 setState(() {
                   per2 = !per2;
                 });
+                }
+
             },
             child: Text(
               type == 4 ? getPer(per1) : (type == 6 ? getPer(per2) : "/hour"),

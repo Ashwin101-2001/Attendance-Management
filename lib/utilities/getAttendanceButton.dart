@@ -9,11 +9,12 @@ import 'functions.dart';
 
 class attendanceButton extends StatefulWidget {
   Function([int x]) notifyParent;
-  attendanceButton(this.notifyParent,this.my,[this.a]);
+  attendanceButton(this.notifyParent,this.selectAttendance,this.my,[this.a]);
   int a;
   SharedPreferences my;
+  int selectAttendance;
   @override
-  attendanceButtonState createState() => attendanceButtonState(notifyParent,this.my,this.a);
+  attendanceButtonState createState() => attendanceButtonState(notifyParent,this.selectAttendance,this.my,this.a);
 }
 
 class attendanceButtonState extends State<attendanceButton> {
@@ -21,13 +22,13 @@ class attendanceButtonState extends State<attendanceButton> {
   int a;
   DatabaseAttendanceService d = new DatabaseAttendanceService();
   SharedPreferences my;
-  attendanceButtonState(this.notifyParent,this.my,[this.a]);
+  attendanceButtonState(this.notifyParent,this.selectAttendance,this.my,[this.a]);
   int selectAttendance;
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    selectAttendance=my.getInt("defaultAttendance")??2;
+
 
   }
 

@@ -11,6 +11,8 @@ import 'package:varnam_attendance/Firebase/attendanceDatabase.dart';
 import 'package:varnam_attendance/Screens/MarkAttendance.dart';
 import 'package:varnam_attendance/models/Employee.dart';
 import 'package:varnam_attendance/utilities/functions.dart';
+import 'package:varnam_attendance/utilities/functions.dart';
+import 'package:varnam_attendance/utilities/functions.dart';
 import 'package:varnam_attendance/utilities/screens_size.dart';
 import 'package:http/http.dart' as http;
 
@@ -154,16 +156,19 @@ class _csvDownloaderState extends State<csvDownloader> {
                     ),
                     onPressed: () async
                     {   print("ASYNC");
+                      var map1=Map.from(attendanceMap);
+                      print("done");
                     List<List<dynamic>> list1=List<List<dynamic>>();
                        list1.add(d1);
                       for (Employee e in employeeList) {
                         /// print("${getRow(e.name).toString()}");
-                        list1.add(getRow(e.name));
+                        list1.add(getRow(e.name,map1));
                       }
                     print("ak");
                     String csv = const ListToCsvConverter().convert(list1);
                     print(csv);
                     final content = base64Encode(csv.codeUnits);
+
                     final url = 'data:application/csv;base64,$content';
                     await launch(url);
 
@@ -181,23 +186,31 @@ class _csvDownloaderState extends State<csvDownloader> {
   }
 
 
-  List<dynamic> getRow(String name)
+  List<dynamic> getRow(String name,map)
   {  List<dynamic> list=List<dynamic>();
      month = "${getaddedzero(date1.month)}-${date1.year}";
     ///Assigning values
-        String s=map[month][PL];
-        int count= s.substring(0,s.length-1).split(",").length;
+  ///
+      int count=0;
+       try{ String s=map["General"][month][PL];
+       count= s.substring(0,s.length-1).split(",").length;}
 
-    Employee e=getEmp(name,employeeList );
-     double attendanceDays =getAttendance(name,attendanceMap,month);
-     double OTHours=getOT(name,attendanceMap,month);
+        catch(e)
+        {}
+
+
+      Employee e=getEmp(name,employeeList );
+       double attendanceDays =getAttendance(name,map,month);
+       double OTHours=getOT(name,map,month);
+       double advance=double.parse(getAdv(name,e)??e.advance);
+     ///CHK
      double wages=getWages(attendanceDays,e.wage) ;
      double OT=OTHours*double.parse(e.overTime);
      double allowance=getAllowance(e.allowance,attendanceDays,count);
       double Total= double.parse((wages + OT + allowance).toStringAsFixed(0));
       double PF = getPf(wages,e.isPF);
-     double ESI=getEsi(Total,PF,e.isESI);
-     double netTotal=double.parse((Total-PF-ESI).toStringAsFixed(0));
+     double ESI=getEsi(wages,PF,e.isESI).round() as double;
+     double netTotal=double.parse((Total-PF-ESI-advance).toStringAsFixed(0));
      int Rounded=roundToTens(netTotal.round());
 
 
@@ -211,7 +224,8 @@ class _csvDownloaderState extends State<csvDownloader> {
     list.add(OT);
     list.add(allowance); //allowance
     list.add(Total);
-    list.add(e.advance);
+    list.add(advance);
+
     list.add(PF);
     list.add(ESI);
     list.add(netTotal);
@@ -230,6 +244,19 @@ class _csvDownloaderState extends State<csvDownloader> {
 
 
   }
+
+  String getAdv(name,e)
+  {
+      print(attendanceMap[name][month].toString());
+
+    if(attendanceMap[name][month].containsKey("ADVANCE"))
+      {  return attendanceMap[name][month]["ADVANCE"];
+      }
+      return null;
+  }
+
+
+
 
 }
 
@@ -256,3 +283,8 @@ class _csvDownloaderState extends State<csvDownloader> {
    "Cash paid"
 
  ];
+
+
+
+// if(name=="AMSAVENI")
+// print(attendanceMap[name][month].toString());
