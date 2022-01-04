@@ -25,7 +25,13 @@ final TextStyle errorStyle=TextStyle(
   fontSize: 12,
 );
 final TextStyle snackStyle=TextStyle(
-  color: Colors.white,
+  color: Colors.red,
+  fontWeight: FontWeight.bold
+);
+final TextStyle snackStyle1=TextStyle(
+    color: Colors.green[800],
+    fontSize: 40,
+    fontWeight: FontWeight.bold
 );
 final TextStyle genderStyle=TextStyle(
   // color: Colors.blue[800],

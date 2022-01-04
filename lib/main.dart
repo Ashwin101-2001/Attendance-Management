@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:varnam_attendance/Screens/AddEmployee.dart';
 import 'package:varnam_attendance/Screens/MarkAttendance.dart';
 import 'package:varnam_attendance/Screens/Payments.dart';
-import 'package:varnam_attendance/Screens/viewEmployee.dart';
+import 'package:varnam_attendance/Screens/Home.dart';
 import 'package:varnam_attendance/Wrapper.dart';
 
 void main() {
@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
       //home:Payments(),
       home:Wrapper(),
       routes: {
-        'view':(context) => viewEmployee(),
+        'view':(context) => Home(),
       },
     );
   }

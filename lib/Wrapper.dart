@@ -1,6 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:varnam_attendance/Screens/viewEmployee.dart';
+import 'package:varnam_attendance/Screens/Home.dart';
 import 'package:varnam_attendance/utilities/Loading.dart';
 
 class Wrapper extends StatefulWidget {
@@ -25,6 +25,6 @@ class _WrapperState extends State<Wrapper> {
 
   @override
   Widget build(BuildContext context) {
-    return !loading?viewEmployee():Loader();
+    return !loading?Home():Loader();
   }
 }

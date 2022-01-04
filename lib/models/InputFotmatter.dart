@@ -64,12 +64,19 @@ class DecimalNumberFormatter extends TextInputFormatter {
     }
 
      int i=0;
-     while(i<text.length)
-       { // if(!((text[i].contains(new RegExp(r'[A-Z]'))||text[i].contains(new RegExp(r'[a-z]')))))
-         if(text[i].contains(new RegExp(r'[0-9]'))||text[i]=='.')
-          text1+=text[i];
-          i++;
-       }
+    while (i < text.length) {
+      // if(!((text[i].contains(new RegExp(r'[A-Z]'))||text[i].contains(new RegExp(r'[a-z]')))))
+      if (text[i].contains(new RegExp(r'[0-9]'))) {
+        text1 += text[i];
+
+      } else if (text[i] == ".") {
+        if (!text.substring(0, i).contains(".")) {
+          text1 += text[i];
+
+        }
+      }
+      i++;
+    }
     return newValue.copyWith(
         text: text1,
         selection: new TextSelection.collapsed(offset: text1.length)
@@ -77,5 +84,30 @@ class DecimalNumberFormatter extends TextInputFormatter {
   }
 }
 
+
+class IntegerFormatter extends TextInputFormatter {
+
+  @override
+  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+    var text = newValue.text;
+    var text1="";
+
+    if (newValue.selection.baseOffset == 0) {
+      return newValue;
+    }
+    int i=0;
+    while (i < text.length) {
+      if (text[i].contains(new RegExp(r'[0-9]'))) {
+        text1 += text[i];
+
+      }
+      i++;
+    }
+    return newValue.copyWith(
+        text: text1,
+        selection: new TextSelection.collapsed(offset: text1.length)
+    );
+  }
+}
 
 

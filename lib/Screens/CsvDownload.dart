@@ -24,6 +24,7 @@ class csvDownloader extends StatefulWidget {
 class _csvDownloaderState extends State<csvDownloader> {
   CalendarController _controller=  CalendarController();
   DateTime date1;
+  DateTime defaultDate=DateTime(2021,11,1);
 
   double width;
   double height;
@@ -52,6 +53,7 @@ class _csvDownloaderState extends State<csvDownloader> {
     map=attendanceMap[general];
     attendanceMap.remove(general);
     employeeList=await listService.getEmployeeList();
+
     ///print(attendanceMap.toString());
 
 
@@ -161,7 +163,6 @@ class _csvDownloaderState extends State<csvDownloader> {
                     List<List<dynamic>> list1=List<List<dynamic>>();
                        list1.add(d1);
                       for (Employee e in employeeList) {
-                        /// print("${getRow(e.name).toString()}");
                         list1.add(getRow(e.name,map1));
                       }
                     print("ak");
@@ -190,18 +191,19 @@ class _csvDownloaderState extends State<csvDownloader> {
   {  List<dynamic> list=List<dynamic>();
      month = "${getaddedzero(date1.month)}-${date1.year}";
     ///Assigning values
-  ///
+
       int count=0;
-       try{ String s=map["General"][month][PL];
-       count= s.substring(0,s.length-1).split(",").length;}
+       try{  count= int.parse(map[general][month][PL]);}
 
         catch(e)
         {}
 
 
-      Employee e=getEmp(name,employeeList );
+       Employee e=getEmp(name,employeeList);
        double attendanceDays =getAttendance(name,map,month);
        double OTHours=getOT(name,map,month);
+       print("$name : ${getAdv(name,e)}");
+       print("$name : ${e.advance}");
        double advance=double.parse(getAdv(name,e)??e.advance);
      ///CHK
      double wages=getWages(attendanceDays,e.wage) ;
@@ -245,18 +247,16 @@ class _csvDownloaderState extends State<csvDownloader> {
 
   }
 
-  String getAdv(name,e)
-  {
-      print(attendanceMap[name][month].toString());
-
-    if(attendanceMap[name][month].containsKey("ADVANCE"))
-      {  return attendanceMap[name][month]["ADVANCE"];
-      }
-      return null;
+    getAdv(name,e)
+  {  print(name);
+     print(month);
+      //print(attendanceMap[name][month].toString());
+    try{
+      return attendanceMap[name][month][advKey];
+    }
+    catch(e)
+    {return null;}
   }
-
-
-
 
 }
 

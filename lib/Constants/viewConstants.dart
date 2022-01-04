@@ -10,32 +10,41 @@ final TextStyle labelVStyle=TextStyle(
   color: Colors.pink,
 );
 
-final TextStyle leftStyle=TextStyle(
-  color: Colors.blue[900],
-  fontSize: 12
-    ,fontWeight: FontWeight.bold
+final TextStyle menuTextStyle=TextStyle(
+  // color: Colors.blue[900],
+    color: Colors.black,
+    fontSize: 15,
+    fontWeight: FontWeight.bold
 );
-final TextStyle tileStyle=TextStyle(
+final TextStyle tileTextStyle=TextStyle(
     color: Colors.white,
     fontWeight: FontWeight.bold,
-
+    fontSize: 18,
 );
 
 
+final TextStyle nameStyle=TextStyle(
+  color: Colors.black,
+  fontSize: 20,
+  fontWeight: FontWeight.bold,
 
+);
 
 double enabledVBorderWidth=1.0;
-double leftIconSize=25.0;
 double focusedVBorderWidth=2.0;
+double menuIconSize=30.0;
 double width2=0.3;
 double boxHeight=25.0;
+double menuItemsSpacing=30;
 
 Color focusedVBorderColor=Colors.pink;
-Color personIconColor=Colors.blue[900];
-Color leftIconColor=Colors.pink;
-Color iconColor=Colors.pink;
 Color enabledVBorderColor=Colors.pink;
+Color personIconColor=Colors.white;
+Color menuIconColor=Colors.blue[900];
+
+
 Color VBGColor1=Colors.grey[850];
 Color scafColor1=Colors.pink[100];
 Color tileColor=Colors.pink;
 Color menuColor=Colors.lightGreen[200];
+

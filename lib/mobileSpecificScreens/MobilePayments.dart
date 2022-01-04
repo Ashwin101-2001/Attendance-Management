@@ -134,36 +134,36 @@ class _mobilePaymentState extends State<mobilePayment> {
             style: payStyle),
         getDiv(),
         ElevatedButton.icon(
-          icon: getPayIcon(attendanceMap[name ?? employeeList[0].name][month]["PAID"]?? false),
+          icon: getPayIcon(attendanceMap[name ?? employeeList[0].name][month][paidKey]?? false),
           label: Text(
-              (attendanceMap[name ?? employeeList[0].name][month]["PAID"]??false)  == true ? "Unpay" : "Pay"),
+              (attendanceMap[name ?? employeeList[0].name][month][paidKey]??false)  == true ? "Unpay" : "Pay"),
           style: ElevatedButton.styleFrom(
             primary:
-            getPayColor(attendanceMap[name ?? employeeList[0].name][month]["PAID"]?? false),
+            getPayColor(attendanceMap[name ?? employeeList[0].name][month][paidKey]?? false),
           ),
 
           onPressed: () async {
             if (_formKey.currentState.validate()) {
               if (name != null)
-              { bool b =attendanceMap[name][month]["PAID"];
+              { bool b =attendanceMap[name][month][paidKey];
               if(b==null)
                 b=true;
               else
                 b=!b;
-              attendanceMap[name][month]["PAID"]= b??true;
-              attendanceMap[name][month]["ADVANCE"]=adController.text;
+              attendanceMap[name][month][paidKey]= b??true;
+              attendanceMap[name][month][advKey]=adController.text;
               await attendanceService.updateStaffData(name, attendanceMap[name]);
 
               }
 
               else
-              {bool b =attendanceMap[employeeList[0].name][month]["PAID"];
+              {bool b =attendanceMap[employeeList[0].name][month][paidKey];
               if(b==null)
                 b=true;
               else
                 b=!b;
-              attendanceMap[employeeList[0].name][month]["PAID"]=b??true;
-              attendanceMap[employeeList[0].name][month]["ADVANCE"]=adController.text;
+              attendanceMap[employeeList[0].name][month][paidKey]=b??true;
+              attendanceMap[employeeList[0].name][month][advKey]=adController.text;
               await attendanceService.updateStaffData(employeeList[0].name, attendanceMap[employeeList[0].name]);
 
               }

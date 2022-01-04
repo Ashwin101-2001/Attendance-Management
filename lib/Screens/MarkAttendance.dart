@@ -9,7 +9,7 @@ import 'package:varnam_attendance/Constants/Overall%20constants.dart';
 import 'package:varnam_attendance/Constants/addEmployeeConstants.dart';
 import 'package:varnam_attendance/Constants/markAttendanceConstants.dart';
 import 'package:varnam_attendance/Firebase/attendanceDatabase.dart';
-import 'package:varnam_attendance/Screens/viewEmployee.dart';
+import 'package:varnam_attendance/Screens/Home.dart';
 import 'package:varnam_attendance/models/Employee.dart';
 import 'package:varnam_attendance/Firebase/EmployeeList.dart';
 import 'package:varnam_attendance/utilities/Loading.dart';
@@ -122,7 +122,7 @@ class _markAttendanceState extends State<markAttendance> {
   Future<bool> _onWillPop() {
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => viewEmployee()),
+      MaterialPageRoute(builder: (context) => Home()),
     );
   }
 
@@ -902,24 +902,7 @@ class _markAttendanceState extends State<markAttendance> {
 
   /// mISC
 
-  Future<Null> _selectDate(BuildContext context) async {
-    print('selectDate');
 
-    final DateTime picked = await showDatePicker(
-        context: context,
-        initialDate: focusDate,
-        initialDatePickerMode: DatePickerMode.day,
-        firstDate: DateTime(2015),
-        lastDate: DateTime(2101));
-    if (picked != null) {
-      setState(() {
-        noChange=true;
-        focusDate = picked;
-        month = "${getaddedzero(picked.month)}-${picked.year}";
-        date = picked.day.toString();
-      });
-    }
-  }
 
   List<int> getStats() {
     List<int> x = [0, 0, 0];
@@ -1021,6 +1004,25 @@ class _markAttendanceState extends State<markAttendance> {
 
   }
 
+
+  Future<Null> _selectDate(BuildContext context) async {
+    print('selectDate');
+
+    final DateTime picked = await showDatePicker(
+        context: context,
+        initialDate: focusDate,
+        initialDatePickerMode: DatePickerMode.day,
+        firstDate: DateTime(2015),
+        lastDate: DateTime(2101));
+    if (picked != null) {
+      setState(() {
+        noChange=true;
+        focusDate = picked;
+        month = "${getaddedzero(picked.month)}-${picked.year}";
+        date = picked.day.toString();
+      });
+    }
+  }
   Widget getFocusDate() {
     return Container(
       margin: EdgeInsets.all(10.0),

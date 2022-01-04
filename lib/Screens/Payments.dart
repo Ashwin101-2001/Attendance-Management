@@ -8,7 +8,8 @@ import 'package:varnam_attendance/Constants/addEmployeeConstants.dart';
 import 'package:varnam_attendance/Constants/markAttendanceConstants.dart';
 import 'package:varnam_attendance/Firebase/EmployeeList.dart';
 import 'package:varnam_attendance/Firebase/attendanceDatabase.dart';
-import 'package:varnam_attendance/Screens/MobilePayments.dart';
+import 'package:varnam_attendance/mobileSpecificScreens/MobilePayments.dart';
+
 import 'package:varnam_attendance/models/Employee.dart';
 import 'package:varnam_attendance/models/InputFotmatter.dart';
 import 'package:varnam_attendance/utilities/Loading.dart';
@@ -22,36 +23,52 @@ class Payments extends StatefulWidget {
 }
 
 class _PaymentsState extends State<Payments> {
-  String name;
-  Map<String, Map<String, dynamic>> attendanceMap = Map<String,
-      Map<String, dynamic>>();
-  TextEditingController sController = new TextEditingController();
-  TextEditingController adController = new TextEditingController();
-  ScrollController scroll = new ScrollController();
+
+
+
+  Map<String, Map<String, dynamic>> attendanceMap = Map<String, Map<String, dynamic>>();
   List<Employee> employeeList = List<Employee>();
+  List<String> searchList;
+
   DatabaseListService listService = DatabaseListService();
   DatabaseAttendanceService attendanceService = DatabaseAttendanceService();
-  final _formKey = GlobalKey<FormState>();
 
-  List<String> searchList;
+
+  String name;
   String month;
+
+
+  int count;
+  DateTime focusDate;
+  DateTime defaultDate=DateTime(2021,12,1);
+
   bool loading = true;
   bool noChange = false;
 
-  String val1;
-  int count;
+  TextEditingController PLController = new TextEditingController();
+  TextEditingController sController = new TextEditingController();
+  TextEditingController adController = new TextEditingController();
+  TextEditingController cashController = new TextEditingController();
+  ScrollController scroll = new ScrollController();
+  final _formKey = GlobalKey<FormState>();
+  final _formKey1 = GlobalKey<FormState>();
+
   double width;
   double height;
-  DateTime focusDate = DateTime.now();
 
   ///bool paid=false;
+
+  /// Inits
 
   @override
   void initState() {
     // TODO: implement initState
     print('init');
     super.initState();
+    focusDate=defaultDate;
     month = "${getaddedzero(focusDate.month)}-${focusDate.year}";
+    PLController.text="0";
+    count=0;
     init();
   }
 
@@ -62,6 +79,8 @@ class _PaymentsState extends State<Payments> {
       loading = false;
     });
   }
+
+  /// Widgets
 
   @override
   Widget build(BuildContext context) {
@@ -80,7 +99,7 @@ class _PaymentsState extends State<Payments> {
             builder: (context, Item) {
               if (Item.hasData) {
                 attendanceMap = Item.data;
-                adController.text=getAdv1(name)??"";
+               // adController.text=getAdv1(name)??"";
                 setUp();
                 return getScaffold();
               } else {
@@ -90,35 +109,7 @@ class _PaymentsState extends State<Payments> {
     }
   }
 
-  void setUp() {
-    String s;
-    try {
-      s = attendanceMap[general][month][PL];
-      if (s == "") {
-        count = 0;
-      }
-      else {
-        s = s.substring(0, s.length - 1);
-        var x = s.split(",");
-        count = x.length;
-      }
-    }
-    catch (e) {
-      count = 0;
-    }
 
-
-    for (String n in attendanceMap.keys) {
-      if (!attendanceMap[n].containsKey(month))
-        attendanceMap[n][month] = {};
-    }
-
-
-    if (attendanceMap[name][month].containsKey("ADVANCE"))
-      adController.text = attendanceMap[name][month]["ADVANCE"];
-    else
-      adController.text = employeeList[getInt(employeeList, name)].advance;
-  }
 
   Widget getScaffold() {
     return Scaffold(
@@ -135,6 +126,16 @@ class _PaymentsState extends State<Payments> {
             children: [
               Container(child: getFocusDate1()),
               SizedBox(height: 10),
+              Container(
+                width: 150,
+                child: Column(
+                  children: [ getName(1, PLController),
+                    SizedBox(height: 10),
+                    getSaveButton(),
+                    SizedBox(height: 10),],
+                ),
+              ),
+
 
               ConstrainedBox(
 
@@ -197,283 +198,75 @@ class _PaymentsState extends State<Payments> {
     );
   }
 
-  List<Widget> getList() {
-    List<Widget> w = List<Widget>();
-    w.add(SizedBox(
-      height: 10,
-    ));
-
-    /// SEARCH BAR
-    w.add(getSearchBar());
-    w.add(SizedBox(
-      height: 10,
-    ));
-
-
-    /// LIST
-    for (Employee s in employeeList) {
-      if (searchList == null || searchList.contains(s.name))
-        {  w.add(GestureDetector(
-          onTap: () {
-            if (isWeb()) {
+  Widget getName(int i,TextEditingController controller) {
+    return Container(
+      width:150,
+      child: TextFormField(
+        controller: controller,
+        style: textStyle,
+        keyboardType: TextInputType.numberWithOptions() ,
+        inputFormatters: [IntegerFormatter()],
+        onChanged: (val)
+        {setState(() {noChange=true;});},
+        validator: (val)=>getValidation(val),
+        decoration: InputDecoration(
+          suffixIcon:  controller.text!=""?IconButton(
+            icon: Icon(Icons.cancel_outlined,color: Colors.blue[800],size: 18.0,),
+            onPressed: () {
               setState(() {
-                noChange = true;
-                name = s.name;
-                adController.text=getAdv1(s.name)??"";
+                noChange=true;
+                controller.text = "0.0";
               });
-            } else {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        mobilePayment(
-                            attendanceMap, employeeList, month, s.name)),
-              );
-            }
-          },
-          child: ListTile(
-            tileColor: Colors.orange,
-            title: Text(s.name),
-            leading: Icon(Icons.person),
-            trailing: getPaid(s.name) == true
-                ? Icon(
-              Icons.check,
-              color: Colors.green,
-            )
-                : Text(""),
+            },
+          ):null,
+          errorStyle: errorStyle,
+          labelText: "Paid Leaves",
+          labelStyle: labelStyle,
+          hintText: "Enter Paid Leaves",
+          hintStyle: hintStyle,
+          focusedBorder: UnderlineInputBorder(
+            borderSide: BorderSide(color: focusedBorderColor, width: focusedBorderWidth),
           ),
-        ));
-
-        w.add(SizedBox(
-          height: 10,
-        ));}
-
-    }
-
-    return w;
-  }
-
-  Widget getPay(context) {
-    Employee e = getEmp(name ?? employeeList[0].name, employeeList);
-    if(adController.text=="")
-      {adController.text=e.advance;}
-
-    double attendanceDays = getAttendance(e.name, attendanceMap, month);
-
-
-    double OTHours = getOT(e.name, attendanceMap, month);
-
-    double wages = getWages(attendanceDays, e.wage);
-
-    double OT = OTHours * double.parse(e.overTime);
-
-    double allowance = getAllowance(e.allowance, attendanceDays, count);
-
-    double Total = double.parse((wages + OT + allowance).toStringAsFixed(0));
-
-
-    double PF = getPf(wages, e.isPF);
-
-    double ESI = getEsi(wages, PF, e.isESI);
-
-    double netTotal = (Total - PF - ESI).floorToDouble();
-    /// print("w:$wages o:$OT T:$Total n:$netTotal");
-
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-
-        Text(
-          "Salary for $month ",
-          style: payStyle1,
+          enabledBorder: UnderlineInputBorder(
+            borderSide: BorderSide(color: enabledBorderColor, width: enabledBorderWidth),
+          ),
         ),
-        getDiv(),
-        Text("Name : ${name ?? employeeList[0].name} ", style: payStyle),
-        getDiv(),
-        Text("Total :  $netTotal", style: payStyle),
-        getDiv(),
-        Text("Advance :  ${e.advance}", style: payStyle),
-        getDiv(),
-        Container(
-            margin: EdgeInsets.fromLTRB(150, 0, 100, 0),
-            child: Row(
-              children: [
-                Text("Advance Deduction:  ", style: payStyle),
-                Container(
-                  width: 100,
-                  child: Form(
-                    key: _formKey,
-                    child: TextFormField(
-                      validator: (val) {
-                        return formValidator(val, e);
-                      },
-                      textAlign: TextAlign.center,
-                      controller: adController,
-                      style: payStyle,
-                      keyboardType:
-                      TextInputType.numberWithOptions(decimal: true),
-                      inputFormatters: [DecimalNumberFormatter()],
-                      onEditingComplete: () {
-                        if (_formKey.currentState.validate()) setState(() {
-                          noChange = true;
-                        });
-                      },
-                      decoration: InputDecoration(
-
-                        focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(
-                              color: Colors.pink, width: focusedBorderWidth1),
-                        ),
-                        enabledBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(
-                              color: Colors.pink, width: enabledBorderWidth1),
-                        ),
-                      ),
-                    ),
-                  ),
-                )
-              ],
-            )),
-        getDiv(),
-        Text(
-            "Amount to be paid :  ${netTotal - getAdvNumber(adController.text)}",
-            style: payStyle),
-        getDiv(),
-        ElevatedButton.icon(
-          icon: getPayIcon(getPaid(name)),
-          label: Text(
-              getPaid(name) == true ? "Unpay" : "Pay"),
-          style: ElevatedButton.styleFrom(
-            primary:
-            getPayColor(getPaid(name)),
-          ),
-
-          onPressed: () {
-            change(context);
-          },
-        )
-      ],
+      ),
     );
   }
+  Widget getSaveButton()
+  {  return  Container(
+    child: ElevatedButton(
+      child: Text("Save"),
+      onPressed: ()  async {
+        if(PLController.text!="")
+          {  await attendanceService.setStaffData(general,{PL:PLController.text});
+          try{count=int.parse(PLController.text);}
+          catch(e)
+          {}
+          noChange=true;
+          setState(() {
+
+          });}
+        else
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: Colors.white,
+              content:   Text('Enter valid values!',style: snackStyle,),
+              duration: Duration(milliseconds: 1500),
+
+            ),
+          );
 
 
-  String formValidator(val, e) {
-    if (val == "") return "Empty !!";
-    try {
-      double b = double.parse(val);
-      if (b <= double.parse("${e.advance}"))
-        setState(() {
-          noChange = true;
-        });
-      else
-        return "";
-    } catch (a) {
-       return "";
-    }
+
+      },
+    ),
+  ) ;
+
+
+
   }
-
-
-  void change(context) async {
-    if (_formKey.currentState.validate()) {
-      String n = employeeList[0].name;
-      double x;
-
-      if (name != null)
-        n = name;
-
-      DocumentSnapshot d =await listService.getDoc(n).get();
-      Map<String,dynamic> map1=d.data();
-
-      bool b = attendanceMap[n][month]["PAID"];
-      if (b == null)
-        b = true;
-      else
-        b = !b;
-
-      if(b??true)
-        {   attendanceMap[n][month]["PAID"] =  true;
-        attendanceMap[n][month]["ADVANCE"] = adController.text;
-
-
-
-          try{
-          x=double.parse(map1["advance"]);
-          x=x-double.parse(adController.text);
-
-        }
-        catch(e)
-        {x=0;
-          ///
-        }}
-      else
-        {  attendanceMap[n][month]["PAID"] =  false;
-          attendanceMap[n][month]["ADVANCE"] = "0";
-
-          try{
-          x=double.parse(map1["advance"]);
-          x=x+double.parse(adController.text);
-          adController.text="0";
-
-        }
-        catch(e)
-        {x=0;
-
-        }}
-      print("RAEDAY");
-      print(map1.toString());
-      map1["advance"]=x.toString();
-      print(map1.toString());
-
-      await attendanceService.updateStaffData(n, attendanceMap[n]);
-      await listService.updateStaffData(n, map1);
-
-      setState(() {
-
-      });
-
-      /// catch
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content:   Text('Enter a valid number!'),
-          duration: Duration(milliseconds: 1500),
-
-        ),
-      );
-    }
-  }
-
-
-
-
-
-  void searchBarPress(val) {
-    searchList = List<String>();
-    for (Employee k in employeeList) {
-      if (k.name.toLowerCase().startsWith(val.toLowerCase()))
-        searchList.add(k.name);
-    }
-    setState(() {
-      noChange = true;
-    });
-  }
-
-  MaterialColor getPayColor(pay) {
-    if (pay)
-      return Colors.red;
-    else
-      return Colors.green;
-  }
-
-
-  Icon getPayIcon(pay) {
-    if (pay)
-      return Icon(Icons.cancel_outlined);
-    else
-      return Icon(Icons.check);
-  }
-
 
   Widget getSearchBar() {
     return TextFormField(
@@ -484,40 +277,38 @@ class _PaymentsState extends State<Payments> {
         searchBarPress(val);
       },
       decoration: InputDecoration(
-        suffixIcon: sController.text != ""
-            ? IconButton(
-          icon: Icon(
-            Icons.cancel_outlined,
-            color: Colors.pink,
-            size: 18.0,
-          ),
-          onPressed: () {
-            searchList = null;
-            setState(() {
-              noChange = true;
-              sController.text = "";
-            });
-          },
-        )
-            : null,
+        suffixIcon: getClearSuffix(),
         labelText: "Search ",
         labelStyle: labelStyle1,
         hintText: "Search for Employee",
         hintStyle: hintStyle1,
         focusedBorder: OutlineInputBorder(
-          borderSide: BorderSide(
-              color: Colors.pink,
-              width: focusedBorderWidth1),
-        ),
+          borderSide: BorderSide(color: Colors.pink, width: focusedBorderWidth1),),
         enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(
-              color: Colors.pink,
-              width: enabledBorderWidth1),
+          borderSide: BorderSide(color: Colors.pink, width: enabledBorderWidth1),
         ),
       ),
     );
   }
 
+  Widget getClearSuffix() {
+    return sController.text != ""
+        ? IconButton(
+      icon: Icon(
+        Icons.cancel_outlined,
+        color: Colors.pink,
+        size: 18.0,
+      ),
+      onPressed: () {
+        searchList = null;
+        setState(() {
+          noChange = true;
+          sController.text = "";
+        });
+      },
+    )
+        : null;
+  }
 
   Widget getFocusDate1() {
     return Container(
@@ -550,6 +341,393 @@ class _PaymentsState extends State<Payments> {
   }
 
 
+  /// Functions
+
+    String getValidation(val)
+    { if (val=="")
+      return "Enter valid values";
+    }
+
+  void setUp() {
+    if(attendanceMap[general][PL]!=null)
+      {  try{
+        PLController.text=attendanceMap[general][PL];
+        count=int.parse(attendanceMap[general][PL]);
+
+      }
+      catch(e)
+       {}
+
+
+
+      }
+    // for (String n in attendanceMap.keys) {
+    //   if (!attendanceMap[n].containsKey(month))
+    //     attendanceMap[n][month] = {};
+    // }
+    //
+    //
+    // if (attendanceMap[name][month].containsKey(advKey))
+    //   adController.text = attendanceMap[name][month][advKey];
+    // else
+    //   adController.text = employeeList[getInt(employeeList, name)].advance;
+    //
+    //
+    // if (attendanceMap[name][month].containsKey(cashKey))
+    //   cashController.text = attendanceMap[name][month][cashKey];
+    // else
+    //   cashController.text ="";
+
+    adController.text=getAdvPaidAndCash(name, advKey)?? employeeList[getInt(employeeList, name)].advance;
+    cashController.text=getAdvPaidAndCash(name, cashKey)??"";
+
+  }
+
+
+
+
+
+  Widget getPay(context) {
+    Employee e = getEmp(name ?? employeeList[0].name, employeeList);
+    if(adController.text=="")
+      {adController.text=e.advance;}
+
+    double attendanceDays = getAttendance(e.name, attendanceMap, month);
+
+
+    double OTHours = getOT(e.name, attendanceMap, month);
+
+    double wages = getWages(attendanceDays, e.wage);
+
+    double OT = OTHours * double.parse(e.overTime);
+    print("count::: $count");
+
+    double allowance = getAllowance(e.allowance, attendanceDays,count);
+    /// CI   ,count
+
+    double Total = double.parse((wages + OT + allowance).toStringAsFixed(0));
+
+
+    double PF = getPf(wages, e.isPF);
+
+    double ESI = getEsi(wages, PF, e.isESI);
+
+    double netTotal = (Total - PF - ESI).floorToDouble();
+    /// print("w:$wages o:$OT T:$Total n:$netTotal");
+
+    if(cashController.text=="")cashController.text="${netTotal - getAdvNumber(adController.text)}";
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+
+        Text(
+          "Salary for $month ",
+          style: payStyle1,
+        ),
+        getDiv(),
+        Text("Name : ${name ?? employeeList[0].name} ", style: payStyle),
+        getDiv(),
+        Text("Total :  $netTotal", style: payStyle),
+        getDiv(),
+        Text("Advance :  ${e.advance}", style: payStyle),
+        getDiv(),
+
+
+        Container(
+            //margin: EdgeInsets.fromLTRB(150, 0, 100, 0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text("Advance Deduction:  ", style: payStyle),
+                Container(
+                  width: 100,
+                  child: Form(
+                    key: _formKey,
+                    child: TextFormField(
+                      validator: (val) {
+                        return formValidator(val, e);
+                      },
+                      textAlign: TextAlign.center,
+                      controller: adController,
+                      style: payStyle,
+                      keyboardType:
+                      TextInputType.numberWithOptions(decimal: true),
+                      inputFormatters: [DecimalNumberFormatter()],
+                      onChanged: (val) {
+                        if(val=="")
+                          adController.text="0";
+                        if (_formKey.currentState.validate()) setState(() {
+                          noChange = true;
+                        });
+                      },
+                      decoration: getDecor(),
+                    ),
+                  ),
+                )
+              ],
+            )),
+
+        getDiv(),
+        Text(
+            "Amount to be paid :  ${netTotal - getAdvNumber(adController.text)}",
+            style: payStyle),
+        getDiv(),
+        Container(
+          //margin: EdgeInsets.fromLTRB(150, 0, 100, 0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text("Cash paid:  ", style: payStyle),
+                Container(
+                  width: 100,
+                  child: Form(
+                    key: _formKey1,
+                    child: TextFormField(
+                      validator: (val) {
+                      return formValidator1(val, "${netTotal - getAdvNumber(adController.text)}");
+                      },
+                      textAlign: TextAlign.center,
+                      controller: cashController,
+                      style: payStyle,
+                      keyboardType:
+                      TextInputType.numberWithOptions(decimal: true),
+                      inputFormatters: [DecimalNumberFormatter()],
+                      onChanged: (val) {
+                        // if (_formKey.currentState.validate()) setState(() {
+                        //   noChange = true;
+                        // });
+                        if(val=="")
+                          cashController.text="0";
+                        print("OEC");
+                        setState(() {
+                          noChange=true;
+                        });
+                      },
+                      decoration: getDecor(),
+                    ),
+                  ),
+                )
+              ],
+            )),
+        getDiv(),
+        Text(
+            "Transfer amount :  ${netTotal - getAdvNumber(adController.text)-double.parse(cashController.text)}",
+            style: payStyle),
+        getDiv(),
+        ElevatedButton.icon(
+          icon: getPayIcon(getAdvPaidAndCash(name, paidKey)??false),
+          label: Text(
+              (getAdvPaidAndCash(name,paidKey)??false) == true ? "Unpay" : "Pay"),
+          style: ElevatedButton.styleFrom(
+            primary:
+            getPayColor(getAdvPaidAndCash(name,paidKey)??false),
+          ),
+
+          onPressed: () {
+            change(context);
+          },
+        )
+      ],
+    );
+  }
+
+
+
+
+
+  String formValidator(val, e) {
+    if (val == "") return "Empty !!";
+    try {
+      double b = double.parse(val);
+      if (b <= double.parse("${e.advance}"))
+        setState(() {
+          noChange = true;
+        });
+      else
+        return "";
+    } catch (a) {
+       return "";
+    }
+  }
+
+
+  String formValidator1(val,x) {
+    if (val == "") return "Empty !!";
+    try {
+      double b = double.parse(val);
+      if (b <= double.parse(x))
+        setState(() {
+          noChange = true;
+        });
+      else
+        return "";
+    } catch (a) {
+      return "";
+    }
+  }
+
+
+
+  List<Widget> getList() {
+    List<Widget> w = List<Widget>();
+    w.add(SizedBox(
+      height: 10,
+    ));
+
+    /// SEARCH BAR
+    w.add(getSearchBar());
+    w.add(SizedBox(
+      height: 10,
+    ));
+
+
+    /// LIST
+    for (Employee s in employeeList) {
+      if (searchList == null || searchList.contains(s.name))
+      {  w.add(GestureDetector(
+        onTap: () {
+          if (isWeb()) {
+            setState(() {
+              noChange = true;
+              name = s.name;
+              adController.text=getAdvPaidAndCash(s.name,advKey)??"";
+              cashController.text="";
+            });
+          } else {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                      mobilePayment(
+                          attendanceMap, employeeList, month, s.name)),
+            );
+          }
+        },
+        child: ListTile(
+          tileColor: Colors.orange,
+          title: Text(s.name),
+          leading: Icon(Icons.person),
+          trailing: (getAdvPaidAndCash(s.name,paidKey)??false) == true
+              ? Icon(
+            Icons.check,
+            color: Colors.green,
+          )
+              : Text(""),
+        ),
+      ));
+
+      w.add(SizedBox(
+        height: 10,
+      ));}
+
+    }
+
+    return w;
+  }
+
+  void change(context) async {
+    if (_formKey.currentState.validate()&&_formKey1.currentState.validate()) {
+      String n = employeeList[0].name;
+      double x;
+
+      if (name != null)
+        n = name;
+
+      DocumentSnapshot d =await listService.getDoc(n).get();
+      Map<String,dynamic> map1=d.data();
+
+      bool b = attendanceMap[n][month][paidKey];
+      if (b == null)
+        b = true;
+      else
+        b = !b;
+
+      if(b??true)  /// Pay
+        {   attendanceMap[n][month][paidKey] =  true;
+        attendanceMap[n][month][advKey] = adController.text;
+        attendanceMap[n][month][cashKey] = cashController.text;
+
+        try{
+          x=double.parse(map1["advance"]);
+          x=x-double.parse(adController.text);
+
+        }
+        catch(e)
+        {x=0;
+          ///
+        }}
+      else    ///Unpay
+        {  attendanceMap[n][month][paidKey] =  false;
+           attendanceMap[n][month][advKey] = "0";
+          attendanceMap[n][month][cashKey] = "";
+
+
+          try{
+          x=double.parse(map1["advance"]);
+          x=x+double.parse(adController.text);
+          adController.text="0";
+
+        }
+        catch(e)
+        {x=0;
+
+        }}
+
+      // print("RAEDAY");
+      // print(map1.toString());
+      // map1["advance"]=x.toString();
+      // print(map1.toString());
+
+      await attendanceService.updateStaffData(n, attendanceMap[n]);
+      await listService.updateStaffData(n, map1);
+
+      setState(() {
+
+      });
+
+      /// catch
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content:   Text('Enter a valid number!'),
+          duration: Duration(milliseconds: 1500),
+
+        ),
+      );
+    }
+  }
+
+  void searchBarPress(val) {
+    searchList = List<String>();
+    for (Employee k in employeeList) {
+      if (k.name.toLowerCase().startsWith(val.toLowerCase()))
+        searchList.add(k.name);
+    }
+    setState(() {
+      noChange = true;
+    });
+  }
+
+  MaterialColor getPayColor(pay) {
+    if (pay)
+      return Colors.red;
+    else
+      return Colors.green;
+  }
+
+
+  Icon getPayIcon(pay) {
+    if (pay)
+      return Icon(Icons.cancel_outlined);
+    else
+      return Icon(Icons.check);
+  }
+
+
+
+
+
   Future<Null> _selectDate(BuildContext context) async {
     print('selectDate');
 
@@ -569,26 +747,32 @@ class _PaymentsState extends State<Payments> {
   }
 
 
-  bool getPaid(name) {
-    bool paid = false;
-    // print(name);
-   /// print(attendanceMap[name ?? employeeList[0].name].toString());
-    if (attendanceMap[name ?? employeeList[0].name][month].containsKey(
-        "PAID")) {
-      paid = attendanceMap[name][month]["PAID"];
-    }
-    return paid;
-  }
+  // bool getPaid(name) {
+  //   bool paid = false;
+  //   // print(name);
+  //  /// print(attendanceMap[name ?? employeeList[0].name].toString());
+  //   if (attendanceMap[name ?? employeeList[0].name][month].containsKey(
+  //       paidKey)) {
+  //     paid = attendanceMap[name][month][paidKey];
+  //   }
+  //   return paid;
+  // }
 
 
-  String getAdv1(name)
+   getAdvPaidAndCash(name,k)
   {   print(name);
-  print(attendanceMap[name][month].toString());
+  // print(attendanceMap[name][month].toString());
+   print(k);
+   try{
+     print(attendanceMap[name][month][k]);
+     if(attendanceMap[name][month][k]==""&&k==advKey)
+       return null;
+      return attendanceMap[name][month][k];}
+   catch(e)
+   { print(e.toString());
+     print(null);
+     return null;}
 
-  if(attendanceMap[name][month].containsKey("ADVANCE"))
-  {  return attendanceMap[name][month]["ADVANCE"];
-  }
-  return null;
   }
 }
 
@@ -630,6 +814,26 @@ List<int> getFlex() {
 }
 
 
+InputDecoration getDecor()
+  {  return InputDecoration(
+
+    focusedBorder: UnderlineInputBorder(
+      borderSide: BorderSide(
+          color: Colors.pink, width: focusedBorderWidth1),
+    ),
+    enabledBorder: UnderlineInputBorder(
+      borderSide: BorderSide(
+          color: Colors.pink, width: enabledBorderWidth1),
+    ),
+  );
+
+
+
+
+
+  }
+
+
 
 //Row(
 //   children: [
@@ -664,7 +868,7 @@ List<int> getFlex() {
 //   else
 //     b = !b;
 //   attendanceMap[employeeList[0].name][month]["PAID"] = b ?? true;
-//   attendanceMap[employeeList[0].name][month]["ADVANCE"] =
+//   attendanceMap[employeeList[0].name][month][advKey] =
 //       adController.text;
 //   await attendanceService.updateStaffData(
 //       employeeList[0].name, attendanceMap[employeeList[0].name]);
@@ -675,3 +879,55 @@ List<int> getFlex() {
 // (adController.text == "" ? (double.parse("${e.advance}") >= 0
 // ? double.parse("${e.advance}")
 // : "0") : double.parse(adController.text))
+
+
+/// Paid Leave Set up part
+// String s;
+// try {
+// s = attendanceMap[general][month][PL];
+// if (s == "") {
+// count = 0;
+// }
+// else {
+// s = s.substring(0, s.length - 1);
+// var x = s.split(",");
+// count = x.length;
+// }
+// }
+// catch (e) {
+// count = 0;
+// }
+
+
+
+
+
+// Container(
+//     margin: EdgeInsets.fromLTRB(150, 0, 100, 0),
+//     child: Row(
+//       children: [
+//         Text("Advance Deduction:  ", style: payStyle),
+//         Container(
+//           width: 100,
+//           child: Form(
+//             key: _formKey,
+//             child: TextFormField(
+//               validator: (val) {return formValidator(val, e);},
+//               textAlign: TextAlign.center,
+//               controller: adController,
+//               style: payStyle,
+//               keyboardType:
+//               TextInputType.numberWithOptions(decimal: true),
+//               inputFormatters: [DecimalNumberFormatter()],
+//               onEditingComplete: () {
+//                 if (_formKey.currentState.validate()) setState(() {
+//                   noChange = true;
+//                 });
+//               },
+//               decoration:  getDecor(),
+//             ),
+//           ),
+//         )
+//       ],
+//     )),
+// getDiv(),
