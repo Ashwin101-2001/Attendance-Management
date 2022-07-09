@@ -77,10 +77,10 @@ String getValidation(int type, String val) {
         return "Field is empty !!";
       break;
     case 2:
-       if (val != "") {
-        if (!(val.length == 11)) return "Enter a valid 10 digit phone number";
-      } else
-        return "Field is empty !!";
+      //  if (val != "") {
+      //   if (!(val.length == 11)) return "Enter a valid 10 digit phone number";
+      // } else
+      //   return "Field is empty !!";
      break;
 
     case 3:

@@ -24,7 +24,8 @@ class csvDownloader extends StatefulWidget {
 class _csvDownloaderState extends State<csvDownloader> {
   CalendarController _controller=  CalendarController();
   DateTime date1;
-  DateTime defaultDate=DateTime(2021,11,1);
+
+
 
   double width;
   double height;
@@ -41,7 +42,7 @@ class _csvDownloaderState extends State<csvDownloader> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    date1=DateTime.now();
+    date1=defaultDate;
     init();
     setState(() {
       loading=false;
@@ -139,6 +140,21 @@ class _csvDownloaderState extends State<csvDownloader> {
                   ),
                   calendarController: _controller,
                 ),
+                // Container(
+                //   child:ElevatedButton(
+                //     child: Text(date1.toString()),
+                //     onPressed: (){
+                //       showMonthPicker(
+                //           context: context,
+                //           firstDate: DateTime( DateTime.now().year - 1 , 5),
+                //           lastDate: DateTime( DateTime.now().year + 1, 9 ),
+                //           initialDate: date1)
+                //           .then((date) => setState(() {
+                //         date1 = date;
+                //       }));
+                //     },
+                //   )
+                // ),
                 SizedBox(height: 50,),
                 Center(
                   child: ElevatedButton(
@@ -202,9 +218,7 @@ class _csvDownloaderState extends State<csvDownloader> {
        Employee e=getEmp(name,employeeList);
        double attendanceDays =getAttendance(name,map,month);
        double OTHours=getOT(name,map,month);
-       print("$name : ${getAdv(name,e)}");
-       print("$name : ${e.advance}");
-       double advance=double.parse(getAdv(name,e)??e.advance);
+       double advance=double.parse(getAdvandCash(name,advKey)??e.advance);
      ///CHK
      double wages=getWages(attendanceDays,e.wage) ;
      double OT=OTHours*double.parse(e.overTime);
@@ -214,6 +228,13 @@ class _csvDownloaderState extends State<csvDownloader> {
      double ESI=getEsi(wages,PF,e.isESI).round() as double;
      double netTotal=double.parse((Total-PF-ESI-advance).toStringAsFixed(0));
      int Rounded=roundToTens(netTotal.round());
+
+     int Transfer=Rounded;; ///CI;
+     try{
+       Transfer=int.parse(getAdvandCash(name,transferKey));
+     }
+     catch(e){}
+     int CashPaid=Rounded-Transfer;
 
 
      /// Adding to list
@@ -232,8 +253,8 @@ class _csvDownloaderState extends State<csvDownloader> {
     list.add(ESI);
     list.add(netTotal);
     list.add(Rounded);
-    list.add(0);
-    list.add(0);
+    list.add(Transfer);
+    list.add(CashPaid);
 
 
     return list;
@@ -247,16 +268,17 @@ class _csvDownloaderState extends State<csvDownloader> {
 
   }
 
-    getAdv(name,e)
-  {  print(name);
-     print(month);
-      //print(attendanceMap[name][month].toString());
-    try{
-      return attendanceMap[name][month][advKey];
+
+
+  getAdvandCash(name, k) {
+    try {
+      return attendanceMap[name][month][k];
     }
-    catch(e)
-    {return null;}
+    catch (e) {
+      return null;
+    }
   }
+
 
 }
 

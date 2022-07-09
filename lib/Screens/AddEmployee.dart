@@ -49,8 +49,9 @@ class _addEmployeeState extends State<addEmployee> {
   bool ESI=false;
     String string="Save";
     String t;
-    String k;
+    String ke;
    Color  c=Colors.pink;
+   String initialName;
    List<bool> selections=[false,false];
 
   // List<String> labels
@@ -68,10 +69,10 @@ class _addEmployeeState extends State<addEmployee> {
     if(name!=null)
       string="Edit";
        t=string;
-       if (string=="Save")
-        k="Saved";
-       else
-         k="Edited";
+       // if (string=="Save")
+       //  k="Saved";
+       // else
+       //   k="Edited";
 
     init();
 
@@ -80,7 +81,9 @@ class _addEmployeeState extends State<addEmployee> {
   void init() async {
     // await Firebase.initializeApp();
     if(name!=null)
-      { DocumentReference d=DatabaseListService().getDoc(name);
+      { initialName=name;
+       print(name);
+        DocumentReference d=DatabaseListService().getDoc(name);
            DocumentSnapshot k =await d.get();
          Employee e=Employee.fromMapObject(k.data());
          nameController.text=e.name;
@@ -251,8 +254,7 @@ class _addEmployeeState extends State<addEmployee> {
                           SizedBox(height: 20.0,),
                           ElevatedButton(
                             style: ElevatedButton.styleFrom(primary: c),
-                            child: Text(
-                              t,
+                            child: Text(t,
                               style: TextStyle(color:Colors.white),
                             ),
                             onPressed: () async {
@@ -271,18 +273,19 @@ class _addEmployeeState extends State<addEmployee> {
                                  }
                                else
                                  {
-                                   if (_formKey.currentState.validate()&&t!="$k !!") {
+                                   //if (_formKey.currentState.validate()&&t!="$k !!") {
+                                   if (_formKey.currentState.validate()) {
                                      print(nameController.text);
                                      await Sync();
                                      setState(() {
-                                       t="$k !!";
-                                       c=Colors.green;
+                                       // t="$k !!";
+                                       // c=Colors.green;
                                      });
 
                                    }
                                    else{
                                    setState(() {
-                                     c=Colors.red[800];
+                                     // c=Colors.red[800];
                                    });
                                      Scaffold.of(context).showSnackBar(SnackBar(
                                    duration: Duration(milliseconds: 1500),
@@ -340,7 +343,17 @@ class _addEmployeeState extends State<addEmployee> {
       await DatabaseListService().insertUserData(e.name, e.map);
       await DatabaseAttendanceService().setStaffData(e.name, {});
     } else {
-      await DatabaseListService().updateStaffData(e.name, e.map);
+      try{await DatabaseListService().updateStaffData(e.name, e.map);
+       }
+      catch(err)
+         {  print("ERROR");
+           await DatabaseListService().insertUserData(e.name, e.map);
+            await DatabaseListService().deleteUserData(initialName);
+
+
+
+         }
+
 
     }
   }

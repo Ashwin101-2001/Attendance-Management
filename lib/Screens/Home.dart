@@ -64,7 +64,7 @@ class _HomeState extends State<Home> {
     databaseListService=DatabaseListService();
     databaseAttendanceService=DatabaseAttendanceService();
     eList = await databaseListService.getEmployeeList();
-    name=eList[0].name;
+    // name=eList[0].name;
     attendanceMap= await databaseAttendanceService.getAttendanceCollection();
     eSearchList = eList;
 
@@ -116,12 +116,12 @@ class _HomeState extends State<Home> {
                             child:Column(
                               children: [
                                 SizedBox(height:100),
-                                Text(getName(name),style:nameStyle),
+                                Text(name!=null?getName(name):"",style:nameStyle),
                                 Container(
                                   height: height,
                                   child: Align(
                                       alignment: Alignment.topLeft,
-                                      child: markAttendance2(name,key1,attendanceMap,eList)),
+                                      child: name!=null?markAttendance2(name,key1,attendanceMap,eList):Container()),
                                 ),
                               ],
                             )
@@ -373,6 +373,9 @@ class _HomeState extends State<Home> {
 
 
   List<Widget> getList() {
+
+    List<String> DISPLAYLIST = EMPLOYEES.split("\n");
+
     List<Widget> a = List<Widget>();
 
     a.add(Container(
@@ -387,14 +390,19 @@ class _HomeState extends State<Home> {
       ),
     ));
     for (Employee e in eSearchList) {
+      // Employee e;
+      // try{   e =eSearchList.where((element) => element.name.toLowerCase()==z.toLowerCase()).first;}
+      // catch(err){}
+
       a.add(GestureDetector(
         onTap: ()
-        {  key1.currentState.name=e.name;
-           key1.currentState.init();
-           setState(() {
-           name=e.name;
+        {  if(e!=null)
+          { key1.currentState.name=e.name;
+          key1.currentState.init();
+          setState(() {
+            name=e.name;
+          });}
 
-        });
           // Navigator.push(
           // context,
           // MaterialPageRoute(builder: (context) => markAttendance2(e.name)),
@@ -403,7 +411,7 @@ class _HomeState extends State<Home> {
 
 
         },
-        child: ListTile(
+        child: e!=null?ListTile(
           tileColor: tileColor,
           title: Text(getName(e.name),style: tileTextStyle,),
           leading: Icon(Icons.person,color: personIconColor,),
@@ -414,7 +422,7 @@ class _HomeState extends State<Home> {
               getDeleteButton(e),
             ],
           ),
-        ),
+        ):Container(height: 0,width: 0,),
       ));
       a.add(SizedBox(
         height: 10.0,
@@ -466,7 +474,6 @@ class _markAttendance2State extends State<markAttendance2>{
   String date;
   DateTime focusDate;
   String name;
-  DateTime defaultDate=DateTime(2021,12,1);
 
   ///  booleans
   bool loading=false;

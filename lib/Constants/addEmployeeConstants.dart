@@ -25,7 +25,7 @@ final TextStyle errorStyle=TextStyle(
   fontSize: 12,
 );
 final TextStyle snackStyle=TextStyle(
-  color: Colors.red,
+  color: Colors.white,
   fontWeight: FontWeight.bold
 );
 final TextStyle snackStyle1=TextStyle(

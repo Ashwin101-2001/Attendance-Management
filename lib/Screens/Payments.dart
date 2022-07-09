@@ -40,7 +40,6 @@ class _PaymentsState extends State<Payments> {
 
   int count;
   DateTime focusDate;
-  DateTime defaultDate=DateTime(2021,12,1);
 
   bool loading = true;
   bool noChange = false;
@@ -48,7 +47,7 @@ class _PaymentsState extends State<Payments> {
   TextEditingController PLController = new TextEditingController();
   TextEditingController sController = new TextEditingController();
   TextEditingController adController = new TextEditingController();
-  TextEditingController cashController = new TextEditingController();
+  TextEditingController transferController = new TextEditingController();
   ScrollController scroll = new ScrollController();
   final _formKey = GlobalKey<FormState>();
   final _formKey1 = GlobalKey<FormState>();
@@ -129,7 +128,7 @@ class _PaymentsState extends State<Payments> {
               Container(
                 width: 150,
                 child: Column(
-                  children: [ getName(1, PLController),
+                  children: [ getPaidLeaves(PLController),
                     SizedBox(height: 10),
                     getSaveButton(),
                     SizedBox(height: 10),],
@@ -198,7 +197,7 @@ class _PaymentsState extends State<Payments> {
     );
   }
 
-  Widget getName(int i,TextEditingController controller) {
+  Widget getPaidLeaves( TextEditingController controller) {
     return Container(
       width:150,
       child: TextFormField(
@@ -208,14 +207,14 @@ class _PaymentsState extends State<Payments> {
         inputFormatters: [IntegerFormatter()],
         onChanged: (val)
         {setState(() {noChange=true;});},
-        validator: (val)=>getValidation(val),
+        //validator: (val)=>getValidation(val),
         decoration: InputDecoration(
           suffixIcon:  controller.text!=""?IconButton(
             icon: Icon(Icons.cancel_outlined,color: Colors.blue[800],size: 18.0,),
             onPressed: () {
               setState(() {
                 noChange=true;
-                controller.text = "0.0";
+                controller.text = "0";
               });
             },
           ):null,
@@ -239,8 +238,8 @@ class _PaymentsState extends State<Payments> {
     child: ElevatedButton(
       child: Text("Save"),
       onPressed: ()  async {
-        if(PLController.text!="")
-          {  await attendanceService.setStaffData(general,{PL:PLController.text});
+        if(PLController.text!=""&&int.parse(PLController.text)<=31)
+          {  await attendanceService.setStaffData(general,{month:{PL:PLController.text}});
           try{count=int.parse(PLController.text);}
           catch(e)
           {}
@@ -320,8 +319,8 @@ class _PaymentsState extends State<Payments> {
             children: [
               TextSpan(
                 text: focusDate != null
-                    ? "  ${DateFormat.yMMMd().format(focusDate)}  "
-                    : "  ${DateFormat.yMMMd().format(DateTime.now())}  ",
+                    ? "  ${DateFormat.yMMM().format(focusDate)}  "
+                    : "  ${DateFormat.yMMM().format(DateTime.now())}  ",
                 style: dateStyle,
               ),
               WidgetSpan(
@@ -343,54 +342,26 @@ class _PaymentsState extends State<Payments> {
 
   /// Functions
 
-    String getValidation(val)
-    { if (val=="")
-      return "Enter valid values";
-    }
+
 
   void setUp() {
-    if(attendanceMap[general][PL]!=null)
-      {  try{
-        PLController.text=attendanceMap[general][PL];
-        count=int.parse(attendanceMap[general][PL]);
 
-      }
+        try{
+        PLController.text=attendanceMap[general][month][PL]??"";
+        count=int.parse(attendanceMap[general][month][PL]);
+        }
       catch(e)
        {}
-
-
-
-      }
-    // for (String n in attendanceMap.keys) {
-    //   if (!attendanceMap[n].containsKey(month))
-    //     attendanceMap[n][month] = {};
-    // }
-    //
-    //
-    // if (attendanceMap[name][month].containsKey(advKey))
-    //   adController.text = attendanceMap[name][month][advKey];
-    // else
-    //   adController.text = employeeList[getInt(employeeList, name)].advance;
-    //
-    //
-    // if (attendanceMap[name][month].containsKey(cashKey))
-    //   cashController.text = attendanceMap[name][month][cashKey];
-    // else
-    //   cashController.text ="";
-
-    adController.text=getAdvPaidAndCash(name, advKey)?? employeeList[getInt(employeeList, name)].advance;
-    cashController.text=getAdvPaidAndCash(name, cashKey)??"";
+       adController.text=getAdvPaidAndCash(name, advKey)?? employeeList[getInt(employeeList, name)].advance;
+        transferController.text=getAdvPaidAndCash(name, transferKey)??"";
 
   }
-
-
-
 
 
   Widget getPay(context) {
     Employee e = getEmp(name ?? employeeList[0].name, employeeList);
     if(adController.text=="")
-      {adController.text=e.advance;}
+    {adController.text=e.advance;}
 
     double attendanceDays = getAttendance(e.name, attendanceMap, month);
 
@@ -415,7 +386,7 @@ class _PaymentsState extends State<Payments> {
     double netTotal = (Total - PF - ESI).floorToDouble();
     /// print("w:$wages o:$OT T:$Total n:$netTotal");
 
-    if(cashController.text=="")cashController.text="${netTotal - getAdvNumber(adController.text)}";
+    if(transferController.text=="")transferController.text="${netTotal - getAdvNumber(adController.text)}";
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -435,7 +406,7 @@ class _PaymentsState extends State<Payments> {
 
 
         Container(
-            //margin: EdgeInsets.fromLTRB(150, 0, 100, 0),
+          //margin: EdgeInsets.fromLTRB(150, 0, 100, 0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -478,17 +449,17 @@ class _PaymentsState extends State<Payments> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text("Cash paid:  ", style: payStyle),
+                Text("Transfer :  ", style: payStyle),
                 Container(
                   width: 100,
                   child: Form(
                     key: _formKey1,
                     child: TextFormField(
                       validator: (val) {
-                      return formValidator1(val, "${netTotal - getAdvNumber(adController.text)}");
+                        return formValidator1(val, "${netTotal - getAdvNumber(adController.text)}");
                       },
                       textAlign: TextAlign.center,
-                      controller: cashController,
+                      controller: transferController,
                       style: payStyle,
                       keyboardType:
                       TextInputType.numberWithOptions(decimal: true),
@@ -498,7 +469,7 @@ class _PaymentsState extends State<Payments> {
                         //   noChange = true;
                         // });
                         if(val=="")
-                          cashController.text="0";
+                          transferController.text="0";
                         print("OEC");
                         setState(() {
                           noChange=true;
@@ -512,7 +483,7 @@ class _PaymentsState extends State<Payments> {
             )),
         getDiv(),
         Text(
-            "Transfer amount :  ${netTotal - getAdvNumber(adController.text)-double.parse(cashController.text)}",
+            "Cash Paid :  ${netTotal - getAdvNumber(adController.text)-double.parse(transferController.text)}",
             style: payStyle),
         getDiv(),
         ElevatedButton.icon(
@@ -531,6 +502,19 @@ class _PaymentsState extends State<Payments> {
       ],
     );
   }
+
+  String getValidation(val)
+  { if (val=="")
+    return "Enter valid values";
+  if(int.parse(val)>=31)
+    return "Too many Paid Leaves";
+  }
+
+
+
+
+
+
 
 
 
@@ -592,7 +576,7 @@ class _PaymentsState extends State<Payments> {
               noChange = true;
               name = s.name;
               adController.text=getAdvPaidAndCash(s.name,advKey)??"";
-              cashController.text="";
+              transferController.text="";
             });
           } else {
             Navigator.push(
@@ -646,7 +630,7 @@ class _PaymentsState extends State<Payments> {
       if(b??true)  /// Pay
         {   attendanceMap[n][month][paidKey] =  true;
         attendanceMap[n][month][advKey] = adController.text;
-        attendanceMap[n][month][cashKey] = cashController.text;
+        attendanceMap[n][month][transferKey] = transferController.text;
 
         try{
           x=double.parse(map1["advance"]);
@@ -660,7 +644,7 @@ class _PaymentsState extends State<Payments> {
       else    ///Unpay
         {  attendanceMap[n][month][paidKey] =  false;
            attendanceMap[n][month][advKey] = "0";
-          attendanceMap[n][month][cashKey] = "";
+          attendanceMap[n][month][transferKey] = "";
 
 
           try{
@@ -931,3 +915,24 @@ InputDecoration getDecor()
 //       ],
 //     )),
 // getDiv(),
+
+
+
+
+///Old controllers cash and adv value setUp
+ // for (String n in attendanceMap.keys) {
+//     //   if (!attendanceMap[n].containsKey(month))
+//     //     attendanceMap[n][month] = {};
+//     // }
+//     //
+//     //
+//     // if (attendanceMap[name][month].containsKey(advKey))
+//     //   adController.text = attendanceMap[name][month][advKey];
+//     // else
+//     //   adController.text = employeeList[getInt(employeeList, name)].advance;
+//     //
+//     //
+//     // if (attendanceMap[name][month].containsKey(cashKey))
+//     //   cashController.text = attendanceMap[name][month][cashKey];
+//     // else
+//     //   cashController.text ="";
